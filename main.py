@@ -1,4 +1,5 @@
-from utils import create_images_list
+from utils import create_images_list, extract_patches
 
 
-create_images_list('./Datasets/', './images_list.txt')
+create_images_list()
+extract_patches()

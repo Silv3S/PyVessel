@@ -1,3 +1,6 @@
 Torch/
 Datasets/
+Patches/
 images_list.txt
+__pycache__
+.vscode/
