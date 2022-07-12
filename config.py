@@ -31,6 +31,8 @@ PATCHED_IMAGES_PATH = './MVPatches/src/'
 PATCHED_MASKS_PATH = './MVPatches/mask/'
 TEST_IMAGES_PATH = './test_images_list.txt'
 TEST_MASKS_PATH = './test_masks_list.txt'
+BEST_MODEL_PATH = './Trained_models/UNet.pt'
+LOSS_PLOT_PATH = './Plots/train_val_loss.png'
 
 # Hardware
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

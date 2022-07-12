@@ -4,11 +4,12 @@ import torch
 from tqdm import tqdm
 import config
 from dataset import RetinalBloodVesselsDataset
-from utils import create_images_list, extract_patches
+from utils import create_images_list, extract_patches, save_model, save_to_file
 from imutils import paths
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.optim import Adam
+from visualize import plot_loss_history
 
 if(config.PREPARE_DATA):
     create_images_list()
@@ -21,6 +22,8 @@ mask_paths = sorted(list(paths.list_images(config.PATCHED_MASKS_PATH)))
                                                         test_size=config.TEST_SPLIT, random_state=config.RANDOM_SEED)
 (X_train, X_val, y_train, y_val) = train_test_split(X_train_, y_train_,
                                                     test_size=config.VAL_SPLIT, random_state=config.RANDOM_SEED)
+save_to_file(config.TEST_IMAGES_PATH, X_test)
+save_to_file(config.TEST_MASKS_PATH, y_test)
 
 basic_transforms = transforms.Compose([transforms.ToPILImage(),
                                        transforms.ToTensor()])
@@ -87,3 +90,6 @@ for epoch in tqdm(range(config.NUM_EPOCHS)):
 
 print('That\'s all Folks!')
 print(f'Total training time: {(time.time() - start_time):.2f}s')
+
+save_model(model)
+plot_loss_history(train_stats)

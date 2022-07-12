@@ -1,20 +1,20 @@
-import pathlib
 import numpy as np
 from skimage.io import imread, imsave
 import os
 from patchify import patchify
 from pathlib import Path
+import torch
 import config
 
 
 def create_images_list():
-    if os.path.exists(config.IMAGES_LIST):
-        os.remove(config.IMAGES_LIST)
+    if os.path.exists(config.IMAGES_LIST_PATH):
+        os.remove(config.IMAGES_LIST_PATH)
         print("Old image list removed")
 
     for dataset in os.listdir(config.DATASETS_PATH):
         images_count = len(os.listdir(config.DATASETS_PATH + dataset + '/src'))
-        f = open(config.IMAGES_LIST, 'a')
+        f = open(config.IMAGES_LIST_PATH, 'a')
         for i in range(1, images_count+1):
             f.write(config.DATASETS_PATH + dataset + '/src/' + dataset + str(i) + '.png ' +
                     config.DATASETS_PATH + dataset + '/mask/' + dataset + str(i) + '_mask.png' + '\n')
@@ -24,7 +24,7 @@ def create_images_list():
 
 
 def extract_patches():
-    image_pairs = config.IMAGES_LIST.readlines()
+    image_pairs = config.IMAGES_LIST_PATH.readlines()
 
     for image_pair in image_pairs:
         image_pair = image_pair.strip().split()
@@ -65,3 +65,13 @@ def is_patch_useless(mask_patch):
     pixel_count = np.prod(mask_patch.shape)
     blood_pixel_count = np.count_nonzero(mask_patch == 255)
     return blood_pixel_count/pixel_count < 0.01
+
+
+def save_to_file(filepath, content):
+    f = open(filepath, "w")
+    f.write("\n".join(content))
+    f.close()
+
+
+def save_model(model):
+    torch.save(model, config.BEST_MODEL_PATH)
