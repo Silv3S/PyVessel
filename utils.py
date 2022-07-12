@@ -18,6 +18,7 @@ def create_images_list():
         for i in range(1, images_count+1):
             f.write(config.DATASETS_PATH + dataset + '/src/' + dataset + str(i) + '.png ' +
                     config.DATASETS_PATH + dataset + '/mask/' + dataset + str(i) + '_mask.png' + '\n')
+            f.close()
         print(
             f'Loaded dataset {dataset} with {images_count} images and masks.')
 

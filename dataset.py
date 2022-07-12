@@ -3,7 +3,7 @@ import cv2
 
 
 class RetinalBloodVesselsDataset(Dataset):
-    def __init__(self, image_paths, mask_paths, transforms):
+    def __init__(self, image_paths, mask_paths, transforms=None):
         self.image_paths = image_paths
         self.mask_paths = mask_paths
         self.transforms = transforms
