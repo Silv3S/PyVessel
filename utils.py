@@ -73,5 +73,12 @@ def save_to_file(filepath, content):
     f.close()
 
 
+def read_txt_as_list(filepath):
+    file = open(filepath, "r")
+    content = file.read()
+    file.close()
+    return content.split("\n")
+
+
 def save_model(model):
     torch.save(model, config.BEST_MODEL_PATH)

@@ -27,6 +27,7 @@ USE_VALIDATION_SET = True
 # Filepaths
 DATASETS_PATH = './Datasets/'
 IMAGES_LIST = './images_list.txt'
+PLOTS_PATH = './Plots/'
 PATCHED_IMAGES_PATH = './MVPatches/src/'
 PATCHED_MASKS_PATH = './MVPatches/mask/'
 TEST_IMAGES_PATH = './test_images_list.txt'

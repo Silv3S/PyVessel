@@ -2,8 +2,11 @@ Torch/
 Datasets/
 Patches/
 MVPatches/
+Plots/
 images_list.txt
 test_images_list.txt
 test_masks_list.txt
+Trained_models/
+TODO.txt
 __pycache__
 .vscode/

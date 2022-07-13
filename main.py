@@ -55,6 +55,7 @@ val_steps = val_dataset.__len__() // config.BATCH_SIZE
 train_stats = {'train_loss': [], 'validation_loss': []}
 
 torch.cuda.empty_cache()
+torch.backends.cudnn.benchmark = True
 start_time = time.time()
 
 for epoch in tqdm(range(config.NUM_EPOCHS)):
