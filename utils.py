@@ -80,5 +80,9 @@ def read_txt_as_list(filepath):
     return content.split("\n")
 
 
-def save_model(model):
-    torch.save(model, config.BEST_MODEL_PATH)
+def save_model(checkpoint):
+    torch.save(checkpoint, config.BEST_MODEL_PATH)
+
+
+def load_model(checkpoint, model):
+    model.load_state_dict(config.BEST_MODEL_PATH)

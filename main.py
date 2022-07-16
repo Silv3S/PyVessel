@@ -1,96 +1,93 @@
+from cmath import inf
 import time
 from sklearn.model_selection import train_test_split
 import torch
-from tqdm import tqdm
 import config
-from dataset import RetinalBloodVesselsDataset
-from utils import create_images_list, extract_patches, save_model, save_to_file
+from dataset import get_dataloader
+from train import train_fn
+from utils import create_images_list, extract_patches, load_model, save_model, save_to_file
 from imutils import paths
-from torchvision import transforms
-from torch.utils.data import DataLoader
 from torch.optim import Adam
 from visualize import plot_loss_history
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+from torch.optim import Adam
 
-if(config.PREPARE_DATA):
-    create_images_list()
-    extract_patches()
 
-image_paths = sorted(list(paths.list_images(config.PATCHED_IMAGES_PATH)))
-mask_paths = sorted(list(paths.list_images(config.PATCHED_MASKS_PATH)))
+if __name__ == '__main__':
+    if(config.PREPARE_DATA):
+        create_images_list()
+        extract_patches()
 
-(X_train_, X_test, y_train_, y_test) = train_test_split(image_paths, mask_paths,
-                                                        test_size=config.TEST_SPLIT, random_state=config.RANDOM_SEED)
-(X_train, X_val, y_train, y_val) = train_test_split(X_train_, y_train_,
-                                                    test_size=config.VAL_SPLIT, random_state=config.RANDOM_SEED)
-save_to_file(config.TEST_IMAGES_PATH, X_test)
-save_to_file(config.TEST_MASKS_PATH, y_test)
+    image_paths = sorted(list(paths.list_images(config.PATCHED_IMAGES_PATH)))
+    mask_paths = sorted(list(paths.list_images(config.PATCHED_MASKS_PATH)))
 
-basic_transforms = transforms.Compose([transforms.ToPILImage(),
-                                       transforms.ToTensor()])
+    # Limit training until application is working correctly
+    image_paths = image_paths[:200]
+    mask_paths = mask_paths[:200]
 
-augmentations = transforms.Compose([transforms.ToPILImage(),
-                                    transforms.ToTensor(),
-                                    transforms.RandomHorizontalFlip(),
-                                    transforms.RandomVerticalFlip()])
+    (X_train_, X_test, y_train_, y_test) = train_test_split(image_paths, mask_paths,
+                                                            test_size=config.TEST_SPLIT, random_state=config.RANDOM_SEED)
+    (X_train, X_val, y_train, y_val) = train_test_split(X_train_, y_train_,
+                                                        test_size=config.VAL_SPLIT, random_state=config.RANDOM_SEED)
+    save_to_file(config.TEST_IMAGES_PATH, X_test)
+    save_to_file(config.TEST_MASKS_PATH, y_test)
 
-train_dataset = RetinalBloodVesselsDataset(X_train, y_train, augmentations)
-val_dataset = RetinalBloodVesselsDataset(X_val, y_val, basic_transforms)
-test_dataset = RetinalBloodVesselsDataset(X_test, y_test, basic_transforms)
+    train_transform = A.Compose(
+        [
+            A.Rotate(limit=35, p=1.0),
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.1),
+            A.Normalize(
+                mean=[0.0, 0.0, 0.0],
+                std=[1.0, 1.0, 1.0],
+                max_pixel_value=255.0,
+            ),
+            ToTensorV2(),
+        ],
+    )
 
-print(f'Dataset division:\n- Training set: {train_dataset.__len__()} patches \n- Validation set: '
-      f'{val_dataset.__len__()} patches\n- Test set: {test_dataset.__len__()} patches')
+    val_transforms = A.Compose(
+        [
+            A.Normalize(
+                mean=[0.0, 0.0, 0.0],
+                std=[1.0, 1.0, 1.0],
+                max_pixel_value=255.0,
+            ),
+            ToTensorV2(),
+        ],
+    )
 
-train_loader = DataLoader(train_dataset, shuffle=True,
-                          batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY)
-val_loader = DataLoader(val_dataset, shuffle=False,
-                        batch_size=config.BATCH_SIZE, pin_memory=config.PIN_MEMORY)
+    train_loader = get_dataloader(X_train, y_train, train_transform, True)
+    val_loader = get_dataloader(X_val, y_val, val_transforms, False)
 
-device = config.DEVICE
-model = config.MODEL_ARCHITECTURE.to(device)
-loss_func = config.LOSS_FUNC
-opt = Adam(model.parameters(), config.LR)
+    device = config.DEVICE
+    model = config.MODEL_ARCHITECTURE.to(device)
+    loss_func = config.LOSS_FUNC
+    opt = Adam(model.parameters(), config.LR)
 
-train_steps = train_dataset.__len__() // config.BATCH_SIZE
-val_steps = val_dataset.__len__() // config.BATCH_SIZE
-train_stats = {'train_loss': [], 'validation_loss': []}
+    if config.LOAD_PRETRAINED_MODEL:
+        load_model(torch.load(config.BEST_MODEL_PATH), model)
 
-torch.cuda.empty_cache()
-torch.backends.cudnn.benchmark = True
-start_time = time.time()
+    scaler = torch.cuda.amp.GradScaler()
+    least_loss = inf
+    train_stats = {'train_loss': [], 'val_loss': []}
 
-for epoch in tqdm(range(config.NUM_EPOCHS)):
-    print(f'Epoch: {epoch + 1} of {config.NUM_EPOCHS}')
-    model.train()
-    train_loss = 0
+    torch.cuda.empty_cache()
+    torch.backends.cudnn.benchmark = True
+    start_time = time.time()
+    for epoch in range(config.NUM_EPOCHS):
+        print(f'Epoch: {epoch + 1} of {config.NUM_EPOCHS}')
+        train_loss, val_loss = train_fn(
+            train_loader, val_loader, model, opt, loss_func, scaler)
 
-    for (i, (x, y)) in enumerate(train_loader):
-        (x, y) = (x.to(device), y.to(device))
-        pred = model(x)
-        loss = loss_func(pred, y)
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
-        train_loss += loss
+        train_stats['train_loss'].append(train_loss)
+        train_stats['val_loss'].append(val_loss)
 
-    train_loss = train_loss / train_steps
-    train_stats['train_loss'].append(train_loss.cpu().detach().numpy())
-    print(f'Training loss: {train_loss:.4f}')
+        if val_loss < least_loss:
+            least_loss = val_loss
+            save_model(model.state_dict())
 
-    # Validation, turn off for faster training
-    if config.USE_VALIDATION_SET:
-        with torch.no_grad():
-            model.eval()
-            val_loss = 0
-            for (x, y) in val_loader:
-                (x, y) = (x.to(device), y.to(device))
-                pred = model(x)
-                val_loss += loss_func(pred, y)
-        val_loss = val_loss / val_steps
-        train_stats['validation_loss'].append(val_loss.cpu().detach().numpy())
-        print(f'Validation loss: {val_loss:.4f}')
-
-print('That\'s all Folks!')
-print(f'Total training time: {(time.time() - start_time):.2f}s')
-
-save_model(model)
-plot_loss_history(train_stats)
+    print('That\'s all Folks!')
+    print(f'Total training time: {(time.time() - start_time):.2f}s')
+    plot_loss_history(train_stats)
