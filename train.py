@@ -19,7 +19,7 @@ def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
-        train_loss += loss
+        train_loss += loss.cpu().detach().numpy()
         train_loop.set_postfix(loss=loss.item())
 
     # Validation, turn off for faster training
@@ -31,8 +31,11 @@ def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
                 x = x.to(device=config.DEVICE)
                 y = y.float().unsqueeze(1).to(device=config.DEVICE)
                 predictions = model(x)
-                loss += loss_fn(predictions, y)
-                val_loss += loss
+                loss = loss_fn(predictions, y)
+                val_loss += loss.cpu().detach().numpy()
                 val_loop.set_postfix(loss=loss.item())
 
-    return train_loss.cpu().detach().numpy(), val_loss.cpu().detach().numpy()
+    avg_train_loss = train_loss / len(train_loader)
+    avg_val_loss = val_loss / len(val_loader)
+
+    return avg_train_loss, avg_val_loss

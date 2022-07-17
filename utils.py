@@ -85,4 +85,4 @@ def save_model(checkpoint):
 
 
 def load_model(checkpoint, model):
-    model.load_state_dict(config.BEST_MODEL_PATH)
+    model.load_state_dict(checkpoint)
