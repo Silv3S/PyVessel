@@ -86,3 +86,7 @@ def save_model(checkpoint):
 
 def load_model(checkpoint, model):
     model.load_state_dict(checkpoint)
+
+
+def average(list):
+    return round(sum(list) / len(list), 4)

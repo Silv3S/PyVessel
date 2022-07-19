@@ -16,7 +16,7 @@ TEST_SPLIT = 0.15
 VAL_SPLIT = 0.1
 LR = 0.001
 NUM_EPOCHS = 3
-BATCH_SIZE = 4      # 32 is max for GTX 1060 6GB
+BATCH_SIZE = 4      # 8 is max for full precision fp32 GTX 1060 6GB
 MODEL_ARCHITECTURE = UNet()
 LOSS_FUNC = loss.DiceBCELoss()
 
@@ -24,6 +24,7 @@ LOSS_FUNC = loss.DiceBCELoss()
 USE_VALIDATION_SET = True
 LOAD_PRETRAINED_MODEL = False
 SAVE_TRAINING_RESULTS = True
+SAVE_TEST_RESULTS = True
 
 # Filepaths
 DATASETS_PATH = './Datasets/'

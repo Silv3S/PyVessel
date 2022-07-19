@@ -20,27 +20,25 @@ def plot_loss_history(stats):
     plt.savefig(config.LOSS_PLOT_PATH)
 
 
-def plot_results_inline(org_img, org_mask, seg_result, save=True, show=False):
+def plot_results_inline(org_img, org_mask, seg_result):
     fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(10, 10))
     ax[0, 0].imshow(org_img)
     ax[0, 0].set_title("Original image")
-    ax[0, 0].set_axis_off()
     ax[0, 1].imshow(org_mask)
     ax[0, 1].set_title("Ground truth")
-    ax[0, 1].set_axis_off()
-    ax[1, 0].imshow(seg_result)
+    ax[1, 0].imshow(org_img)
+    ax[1, 0].imshow(seg_result,  alpha=0.7)
     ax[1, 0].set_title("Segmentation result")
-    ax[1, 0].set_axis_off()
     ax[1, 1].imshow(seg_result)
     ax[1, 1].set_title("Segmentation result")
-    ax[1, 1].set_axis_off()
     fig.tight_layout()
-
-    if save:
+    for axis in ax.flat:
+        axis.set_axis_off()
+    if config.SAVE_TEST_RESULTS:
         filename = f'{config.PLOTS_PATH}_{uuid.uuid4()}.png'
         plt.savefig(filename)
-    if show:
-        fig.show()
+
+    plt.close(fig)
 
 
 def visualize_training_results(loader, model):
