@@ -1,4 +1,3 @@
-from numpy import unique
 from utils import average
 from sklearn import metrics
 
@@ -27,9 +26,9 @@ class SegmentationMetrics():
 
     def summary(self):
         print(f"Segmentation metrics")
-        print(f"Accuracy: {round(self.accuracy[0], 4)}")
-        print(f"Precision: {round(self.precision[0], 4)}")
-        print(f"Recall / Sensitivity: {round(self.recall[0], 4)}")
-        print(f"Specificity: {round(self.specificity[0], 4)}")
-        print(f"Dice coefficient / F-score: {round(self.Dice[0], 4)}")
-        print(f"Jaccard index / IoU: {round(self.Jaccard[0], 4)}")
+        print(f"Accuracy: {average(self.accuracy, 4)}")
+        print(f"Precision: {average(self.precision, 4)}")
+        print(f"Recall / Sensitivity: {average(self.recall, 4)}")
+        print(f"Specificity: {average(self.specificity, 4)}")
+        print(f"Dice coefficient / F-score: {average(self.Dice, 4)}")
+        print(f"Jaccard index / IoU: {average(self.Jaccard, 4)}")
