@@ -52,9 +52,9 @@ class RRCNN_block(nn.Module):
         return x + x1
 
 
-class R2U_Net(nn.Module):
+class R2UNet(nn.Module):
     def __init__(self, channels_in=3, channels_out=1, t=2):
-        super(R2U_Net, self).__init__()
+        super(R2UNet, self).__init__()
         features = [64, 128, 256, 512, 1024]
         self.Maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Upsample = nn.Upsample(scale_factor=2)
