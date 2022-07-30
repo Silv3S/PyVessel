@@ -17,29 +17,29 @@ def split_train_test_images():
             shutil.copyfile(config.DATASETS_PATH + dataset + '/src/' + dataset + str(i) + '.png',
                             target_directory + '/src/' + dataset + str(i) + '.png')
             shutil.copyfile(config.DATASETS_PATH + dataset + '/mask/' + dataset + str(i) + '_mask.png',
-                            target_directory + '/mask/' + dataset + str(i) + '_mask.png')
+                            target_directory + '/mask/' + dataset + str(i) + '.png')
         print(
             f'Loaded dataset {dataset} with {images_count} images and masks.')
 
     train_set_size = len(os.listdir(config.TRAIN_DATASETS_PATH + "src/"))
     test_set_size = len(os.listdir(config.TEST_DATASETS_PATH + "src/"))
-    print(f"Train/Val set: {train_set_size}\nTest set: {test_set_size}")
+    print(
+        f"Train/Val set: {train_set_size} images\nTest set: {test_set_size} images")
 
 
 def extract_train_patches():
     for path in os.listdir(config.TRAIN_DATASETS_PATH + "src/"):
         image = imread(config.TRAIN_DATASETS_PATH + "src/" + path)
-        mask = imread(config.TRAIN_DATASETS_PATH +
-                      "mask/" + path[:-4] + "_mask.png")
-
-        patch_shape = config.PATCH_SHAPE_GRAYSCALE if len(
-            image.shape) == 2 else config.PATCH_SHAPE_RGB
-        image_patches = patchify(image, patch_shape, step=config.PATCH_STEP)
+        mask = imread(config.TRAIN_DATASETS_PATH + "mask/" + path)
+        image, mask = add_zero_padding(image, mask)
+        image_patches = patchify(
+            image, config.PATCH_SHAPE_IMG, step=config.PATCH_STEP)
         mask_patches = patchify(
-            mask, config.PATCH_SHAPE_GRAYSCALE, step=config.PATCH_STEP)
-
+            mask, config.PATCH_SHAPE_MASK, step=config.PATCH_STEP)
         save_extracted_patches(
             image_patches, mask_patches, path[:-4])
+    patches_count = len(os.listdir(config.PATCHES_PATH + "src/"))
+    print(f"Divided training set to {patches_count} patches")
 
 
 def save_extracted_patches(image_patches, mask_patches, image_name):
@@ -59,8 +59,6 @@ def save_extracted_patches(image_patches, mask_patches, image_name):
             imsave('./Patches/mask/' + filename,
                    mask_patches[i, j, ...], check_contrast=False)
             idx = idx + 1
-    patches_count = len(os.listdir(config.PATCHES_PATH + "src/"))
-    print(f"Divided training set to {patches_count} patches")
 
 
 def is_patch_useless(mask_patch):
@@ -68,3 +66,24 @@ def is_patch_useless(mask_patch):
     pixel_count = np.prod(mask_patch.shape)
     blood_pixel_count = np.count_nonzero(mask_patch == 255)
     return blood_pixel_count/pixel_count < 0.01
+
+
+def add_zero_padding(image, mask, format_NHWC=False):
+    """ Patchify can't handle under-sized patches. Without padding dataset is not fully utilised """
+    w = 2 if format_NHWC else 0
+    h = 3 if format_NHWC else 1
+    h_pad = config.PATCH_SHAPE_MASK[0] - \
+        (image.shape[w] % config.PATCH_SHAPE_MASK[0])
+    v_pad = config.PATCH_SHAPE_MASK[1] - \
+        (image.shape[h] % config.PATCH_SHAPE_MASK[1])
+
+    if(h_pad != 0 or v_pad != 0):
+        if(format_NHWC):
+            img_pad = [(0, 0), (0, 0), (0, h_pad), (0, v_pad)]
+            mask_pad = [(0, 0), (0, h_pad), (0, v_pad)]
+        else:
+            img_pad = [(0, h_pad), (0, v_pad), (0, 0)]
+            mask_pad = [(0, h_pad), (0, v_pad)]
+        image = np.pad(image, img_pad, mode='constant', constant_values=0)
+        mask = np.pad(mask, mask_pad, mode='constant', constant_values=0)
+    return image, mask
