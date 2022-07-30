@@ -1,10 +1,9 @@
 Torch/
 Datasets/
+Datasets_Train/
+Datasets_Test/
 Patches/
 Plots/
-images_list.txt
-test_images_list.txt
-test_masks_list.txt
 Trained_models/
 TODO.txt
 __pycache__

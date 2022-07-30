@@ -3,9 +3,10 @@ import time
 from sklearn.model_selection import train_test_split
 import torch
 import config
+from data_preparation import extract_train_patches, split_train_test_images
 from dataset import get_dataloader
 from train import train_fn
-from utils import create_images_list, extract_patches, load_model, save_model, save_to_file
+from utils import clear_image_directories, load_model, save_model
 from imutils import paths
 from torch.optim import Adam
 from visualize import plot_loss_history
@@ -15,24 +16,20 @@ from torch.optim import Adam
 
 
 if __name__ == '__main__':
-    if(config.PREPARE_DATA):
-        create_images_list()
-        extract_patches()
+    if(config.PREPARE_DATASETS):
+        clear_image_directories()
+        split_train_test_images()
+        extract_train_patches()
 
-    image_paths = sorted(list(paths.list_images(config.PATCHED_IMAGES_PATH)))
-    mask_paths = sorted(list(paths.list_images(config.PATCHED_MASKS_PATH)))
+    image_paths = sorted(list(paths.list_images(config.PATCHES_PATH + "src/")))
+    mask_paths = sorted(list(paths.list_images(config.PATCHES_PATH + "mask/")))
 
     # Limit training until application is working correctly
     image_paths = image_paths[:200]
     mask_paths = mask_paths[:200]
 
-    (X_train_, X_test, y_train_, y_test) = train_test_split(image_paths, mask_paths,
-                                                            test_size=config.TEST_SPLIT, random_state=config.RANDOM_SEED)
-    (X_train, X_val, y_train, y_val) = train_test_split(X_train_, y_train_,
-                                                        test_size=config.VAL_SPLIT, random_state=config.RANDOM_SEED)
-    save_to_file(config.TEST_IMAGES_PATH, X_test)
-    save_to_file(config.TEST_MASKS_PATH, y_test)
-
+    (X_train, X_val, y_train, y_val) = train_test_split(image_paths, mask_paths,
+                                                        test_size=config.VAL_SET_RATIO, random_state=config.RANDOM_SEED)
     train_transform = A.Compose(
         [
             A.Rotate(limit=35, p=1.0),

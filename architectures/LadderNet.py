@@ -151,7 +151,6 @@ class Final_LadderBlock(nn.Module):
 
     def forward(self, x):
         out = self.block(x)
-        print(type(out))
         return out[-1]
 
 
