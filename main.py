@@ -5,8 +5,8 @@ import torch
 import config
 from data_preparation import extract_train_patches, split_train_test_images
 from dataset import get_dataloader
-from train import train_fn
-from utils import clear_image_directories, load_model, save_model
+from train import EarlyStopping, train_fn
+from utils import clear_image_directories, load_model
 from imutils import paths
 from torch.optim import Adam
 from visualize import plot_loss_history
@@ -72,6 +72,7 @@ if __name__ == '__main__':
 
     torch.cuda.empty_cache()
     torch.backends.cudnn.benchmark = True
+    early_stopping = EarlyStopping(tolerance=5, min_delta=0.01)
     start_time = time.time()
     for epoch in range(config.NUM_EPOCHS):
         print(f'Epoch: {epoch + 1} of {config.NUM_EPOCHS}')
@@ -81,9 +82,10 @@ if __name__ == '__main__':
         train_stats['train_loss'].append(train_loss)
         train_stats['val_loss'].append(val_loss)
 
-        if val_loss < least_loss:
-            least_loss = val_loss
-            save_model(model.state_dict())
+        early_stopping(model, train_loss, val_loss)
+        if(early_stopping.early_stop):
+            print("Validation loss is no longer decreasing. Stop to avoid overfitting")
+            break
 
     print('That\'s all Folks!')
     print(f'Total training time: {(time.time() - start_time):.2f}s')
