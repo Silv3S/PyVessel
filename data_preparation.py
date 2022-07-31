@@ -62,14 +62,18 @@ def save_extracted_patches(image_patches, mask_patches, image_name):
 
 
 def is_patch_useless(mask_patch):
-    """ Patch is considered useless if the blood vessel pixels are less than 1% of the patch """
+    """
+    Patch is considered useless if the blood vessel pixels are less than 1% of the patch
+    """
     pixel_count = np.prod(mask_patch.shape)
     blood_pixel_count = np.count_nonzero(mask_patch == 255)
     return blood_pixel_count/pixel_count < 0.01
 
 
 def add_zero_padding(image, mask, format_NHWC=False):
-    """ Patchify can't handle under-sized patches. Without padding dataset is not fully utilised """
+    """
+    Patchify can't handle under-sized patches. Without padding dataset is not fully utilised
+    """
     w = 2 if format_NHWC else 0
     h = 3 if format_NHWC else 1
     h_pad = config.PATCH_SHAPE_MASK[0] - \

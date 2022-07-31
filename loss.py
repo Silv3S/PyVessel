@@ -4,7 +4,7 @@ import torch.nn.functional
 
 
 class DiceLoss(nn.Module):
-    def __init__(self, weight=None, size_average=True):
+    def __init__(self):
         super(DiceLoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
@@ -20,7 +20,7 @@ class DiceLoss(nn.Module):
 
 
 class DiceBCELoss(nn.Module):
-    def __init__(self, weight=None, size_average=True):
+    def __init__(self):
         super(DiceBCELoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
@@ -39,7 +39,7 @@ class DiceBCELoss(nn.Module):
 
 
 class IoULoss(nn.Module):
-    def __init__(self, weight=None, size_average=True):
+    def __init__(self):
         super(IoULoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
@@ -53,3 +53,31 @@ class IoULoss(nn.Module):
         IoU = (intersection + smooth)/(union + smooth)
 
         return 1 - IoU
+
+
+class TverskyBCELoss(nn.Module):
+    def __init__(self, alpha, beta):
+        """
+        Tversky loss combined with Binary Cross Entropy. Parameters α and β
+        control the magnitude of penalties for FPs and FNs, respectively.
+        """
+        super(TverskyBCELoss, self).__init__()
+        self.alpha = alpha
+        self.beta = beta
+
+    def forward(self, inputs, targets, smooth=1):
+        inputs = torch.sigmoid(inputs)
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        tp = (inputs * targets).sum()
+        fp = ((1-targets) * inputs).sum()
+        fn = (targets * (1-inputs)).sum()
+        tversky_loss = 1 - \
+            ((tp + smooth) / (tp + self.alpha*fp + self.beta*fn + smooth))
+
+        bce = torch.nn.functional.binary_cross_entropy(
+            inputs, targets, reduction='mean')
+        TverskyBCE = bce + tversky_loss
+
+        return TverskyBCE
