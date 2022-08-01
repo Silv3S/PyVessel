@@ -1,6 +1,8 @@
 import uuid
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
+import numpy as np
 import torch
 import config
 from torchvision.utils import save_image
@@ -20,7 +22,7 @@ def plot_loss_history(stats):
     plt.savefig(config.LOSS_PLOT_PATH)
 
 
-def plot_results_inline(org_img, org_mask, seg_result):
+def plot_results_inline(org_img, org_mask, seg_result, img_id=uuid.uuid4()):
     fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(10, 10))
     ax[0, 0].imshow(org_img)
     ax[0, 0].set_title("Original image")
@@ -35,7 +37,7 @@ def plot_results_inline(org_img, org_mask, seg_result):
     for axis in ax.flat:
         axis.set_axis_off()
     if config.SAVE_TEST_RESULTS:
-        filename = f'{config.PLOTS_PATH}_{uuid.uuid4()}.png'
+        filename = f'{config.PLOTS_PATH}_{img_id}.png'
         plt.savefig(filename)
 
     plt.close(fig)
@@ -53,3 +55,27 @@ def visualize_training_results(loader, model):
         save_image(y.unsqueeze(1), f"{config.PLOTS_PATH}{idx}.png")
 
     model.train()
+
+
+def plot_confusion_matrix(y_true, y_pred, img, img_id=uuid.uuid4()):
+    y_pred = y_pred / 255.0
+    tp = (y_true+y_pred) == 2
+    tn = (y_true+y_pred) == 0
+    fp = (y_true-y_pred) == -1
+    fn = (y_true-y_pred) == 1
+
+    cm = np.zeros((y_true.shape[0], y_true.shape[1], 3))
+    for i in range(0, cm.shape[0]):
+        for j in range(0, cm.shape[1]):
+            if(tn[i, j] == 1):
+                cm[i, j, :] = (1, 1, 1)
+            elif(tp[i, j] == 1):
+                cm[i, j, :] = (0, 0, 0)
+            elif(fp[i, j] == 1):
+                cm[i, j, :] = (19, 160, 191)
+                cm[i, j, :] /= 255
+            elif(fn[i, j] == 1):
+                cm[i, j, :] = (1, 0, 0)
+
+    matplotlib.image.imsave(
+        f'{config.PLOTS_PATH}_CM_{img_id}.png', np.hstack((img, cm)))
