@@ -50,11 +50,14 @@ class EarlyStopping():
         self.early_stop = False
         self.least_loss = inf
 
-    def __call__(self, model, train_loss, validation_loss):
-        if (validation_loss - train_loss) > self.min_delta:
+    def __call__(self, model, validation_loss):
+        if (validation_loss - self.least_loss) > self.min_delta:
             self.counter += 1
+            print(
+                f'Slowly losing patience ... ({self.counter}/{self.tolerance})\n')
             if self.counter >= self.tolerance:
                 self.early_stop = True
-        elif(validation_loss <= self.least_loss):
+        else:
+            self.counter = 0
             self.least_loss = validation_loss
             save_model(model.state_dict())

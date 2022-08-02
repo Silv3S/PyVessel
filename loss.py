@@ -56,14 +56,16 @@ class IoULoss(nn.Module):
 
 
 class TverskyBCELoss(nn.Module):
-    def __init__(self, alpha, beta):
+    def __init__(self, alpha, beta, bce_ratio):
         """
         Tversky loss combined with Binary Cross Entropy. Parameters α and β
         control the magnitude of penalties for FPs and FNs, respectively.
+        bce_ratio is responsible for weighting BCE and Tversky.
         """
         super(TverskyBCELoss, self).__init__()
         self.alpha = alpha
         self.beta = beta
+        self.bce_ratio = bce_ratio
 
     def forward(self, inputs, targets, smooth=1):
         inputs = torch.sigmoid(inputs)
@@ -78,6 +80,7 @@ class TverskyBCELoss(nn.Module):
 
         bce = torch.nn.functional.binary_cross_entropy(
             inputs, targets, reduction='mean')
-        TverskyBCE = bce + tversky_loss
+        TverskyBCE = (self.bce_ratio * bce) + \
+            ((1-self.bce_ratio) * tversky_loss)
 
         return TverskyBCE

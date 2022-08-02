@@ -33,9 +33,9 @@ def extract_train_patches():
         mask = imread(config.TRAIN_DATASETS_PATH + "mask/" + path)
         image, mask = add_zero_padding(image, mask)
         image_patches = patchify(
-            image, config.PATCH_SHAPE_IMG, step=config.PATCH_STEP)
+            image, config.PATCH_SHAPE_IMG, step=config.PATCH_STEP_TRAIN)
         mask_patches = patchify(
-            mask, config.PATCH_SHAPE_MASK, step=config.PATCH_STEP)
+            mask, config.PATCH_SHAPE_MASK, step=config.PATCH_STEP_TRAIN)
         save_extracted_patches(
             image_patches, mask_patches, path[:-4])
     patches_count = len(os.listdir(config.PATCHES_PATH + "src/"))
@@ -54,9 +54,9 @@ def save_extracted_patches(image_patches, mask_patches, image_name):
                 image_patch = np.squeeze(image_patch)
 
             filename = f'{image_name}_patch{idx}.png'
-            imsave('./Patches/src/' + filename,
+            imsave(config.PATCHES_PATH + 'src/' + filename,
                    image_patch, check_contrast=False)
-            imsave('./Patches/mask/' + filename,
+            imsave(config.PATCHES_PATH + 'mask/' + filename,
                    mask_patches[i, j, ...], check_contrast=False)
             idx = idx + 1
 

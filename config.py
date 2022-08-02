@@ -10,6 +10,7 @@ PATCH_SHAPE_MASK = (patch_size, patch_size)
 PATCH_SHAPE_IMG = (patch_size, patch_size, 3)
 PATCH_SHAPE_IMG_NHWC = (1, 3, patch_size, patch_size)
 PATCH_STEP = 256
+PATCH_STEP_TRAIN = 128
 
 # Hyperparameters
 RANDOM_SEED = 37
