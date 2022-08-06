@@ -3,6 +3,7 @@ import config
 from tqdm import tqdm
 from cmath import inf
 from utils import save_model
+from visualize import save_loss_history
 
 
 def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
@@ -42,22 +43,31 @@ def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
     return avg_train_loss, avg_val_loss
 
 
-class EarlyStopping():
-    def __init__(self, tolerance=5, min_delta=0):
-        self.tolerance = tolerance
-        self.min_delta = min_delta
+class LossTracker():
+    def __init__(self):
+        self.tolerance = config.EARLY_STOP_PATIENCE
+        self.min_delta = config.EARLY_STOP_DELTA
         self.counter = 0
         self.early_stop = False
-        self.least_loss = inf
+        self.least_val_loss = inf
+        self.train_stats = {'train_loss': [], 'val_loss': []}
 
-    def __call__(self, model, validation_loss):
-        if (validation_loss - self.least_loss) > self.min_delta:
+    def __call__(self, model, training_loss, validation_loss):
+        self.train_stats['train_loss'].append(training_loss)
+        self.train_stats['val_loss'].append(validation_loss)
+
+        if (validation_loss - self.least_val_loss) > self.min_delta:
             self.counter += 1
             print(
                 f'Slowly losing patience ... ({self.counter}/{self.tolerance})\n')
             if self.counter >= self.tolerance:
+                print("Validation loss is no longer decreasing.")
+                print("Stop training to avoid overfitting.")
                 self.early_stop = True
         else:
             self.counter = 0
-            self.least_loss = validation_loss
+            self.least_val_loss = validation_loss
             save_model(model.state_dict())
+
+    def save_loss_plots(self):
+        save_loss_history(self.train_stats)

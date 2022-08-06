@@ -163,7 +163,9 @@ class LadderNet(nn.Module):
         # This may lead to overfitting, so use with caution
         # self.middle_block = Middle_LadderBlock(filters, layers)
         self.final_block = Final_LadderBlock(filters, layers)
-        self.final = nn.Conv2d(filters, 1, 1)
+        self.final = nn.Sequential(
+            nn.Conv2d(filters, 1, 1),
+            nn.Sigmoid())
 
     def forward(self, x):
         out = self.initial_block(x)

@@ -8,7 +8,7 @@ import config
 from torchvision.utils import save_image
 
 
-def plot_loss_history(stats):
+def save_loss_history(stats):
     plt.figure()
     ax = plt.gca()
     plt.plot(stats["train_loss"], label="train_loss")
@@ -49,7 +49,7 @@ def visualize_training_results(loader, model):
         x = x.to(device=config.DEVICE)
 
         with torch.no_grad():
-            preds = torch.sigmoid(model(x))
+            preds = model(x)
             preds = (preds > 0.5).float()
         save_image(preds, f"{config.PLOTS_PATH}/pred_{idx}.png")
         save_image(y.unsqueeze(1), f"{config.PLOTS_PATH}{idx}.png")
@@ -57,7 +57,7 @@ def visualize_training_results(loader, model):
     model.train()
 
 
-def plot_confusion_matrix(y_true, y_pred, img, img_id=uuid.uuid4()):
+def save_graphical_confusion_matrix(y_true, y_pred, img, img_id=uuid.uuid4()):
     y_pred = y_pred / 255.0
     tp = (y_true+y_pred) == 2
     tn = (y_true+y_pred) == 0
@@ -68,14 +68,14 @@ def plot_confusion_matrix(y_true, y_pred, img, img_id=uuid.uuid4()):
     for i in range(0, cm.shape[0]):
         for j in range(0, cm.shape[1]):
             if(tn[i, j] == 1):
-                cm[i, j, :] = (1, 1, 1)
+                cm[i, j, :] = config.TP_RGB
             elif(tp[i, j] == 1):
-                cm[i, j, :] = (0, 0, 0)
+                cm[i, j, :] = config.TN_RGB
             elif(fp[i, j] == 1):
-                cm[i, j, :] = (19, 160, 191)
+                cm[i, j, :] = config.FP_RGB
                 cm[i, j, :] /= 255
             elif(fn[i, j] == 1):
-                cm[i, j, :] = (1, 0, 0)
+                cm[i, j, :] = config.FN_RGB
 
     matplotlib.image.imsave(
         f'{config.PLOTS_PATH}_CM_{img_id}.png', np.hstack((img, cm)))

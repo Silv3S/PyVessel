@@ -7,9 +7,7 @@ from data_preparation import add_zero_padding
 from dataset import RetinalBloodVesselsDataset
 from metrics import SegmentationMetrics
 from utils import load_model
-from visualize import plot_confusion_matrix, plot_results_inline
-from albumentations.pytorch import ToTensorV2
-import albumentations as A
+from visualize import save_graphical_confusion_matrix, plot_results_inline
 from imutils import paths
 from patchify import patchify, unpatchify
 
@@ -34,7 +32,7 @@ def predict(model, data_loader):
                 for j in range(image_patches.shape[1]):
                     x = torch.from_numpy(image_patches[i, j, ...])
                     x = x.to(config.DEVICE)
-                    pred = torch.sigmoid(model(x))
+                    pred = model(x)
                     pred = pred.squeeze().cpu().numpy()
                     preds_patches[i, j, ...] = (
                         (pred > 0.5) * 255).astype(np.uint8)
@@ -44,7 +42,7 @@ def predict(model, data_loader):
 
             plot_id = uuid.uuid4()
             plot_results_inline(img, mask, prediction, plot_id)
-            plot_confusion_matrix(mask, prediction, img, plot_id)
+            save_graphical_confusion_matrix(mask, prediction, img, plot_id)
             segmentation_metrics.evaluate_pair(mask, prediction)
         segmentation_metrics.summary()
 
@@ -54,23 +52,11 @@ if __name__ == "__main__":
     load_model(torch.load(config.BEST_MODEL_PATH), model)
     model.eval()
 
-    test_transforms = A.Compose(
-        [
-            A.Normalize(
-                mean=[0.0, 0.0, 0.0],
-                std=[1.0, 1.0, 1.0],
-                max_pixel_value=255.0,
-            ),
-            ToTensorV2(),
-        ],
-    )
-
     test_dataset = RetinalBloodVesselsDataset(
         image_paths=sorted(
             list(paths.list_images(config.TEST_DATASETS_PATH + "src/"))),
         mask_paths=sorted(
             list(paths.list_images(config.TEST_DATASETS_PATH + "mask/"))),
-        transforms=test_transforms,
     )
 
     test_loader = DataLoader(

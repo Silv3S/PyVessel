@@ -8,7 +8,6 @@ class DiceLoss(nn.Module):
         super(DiceLoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
-        inputs = torch.sigmoid(inputs)
         inputs = inputs.view(-1)
         targets = targets.view(-1)
 
@@ -24,7 +23,6 @@ class DiceBCELoss(nn.Module):
         super(DiceBCELoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
-        inputs = torch.sigmoid(inputs)
         inputs = inputs.view(-1)
         targets = targets.view(-1)
 
@@ -43,7 +41,6 @@ class IoULoss(nn.Module):
         super(IoULoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
-        inputs = torch.sigmoid(inputs)
         inputs = inputs.view(-1)
         targets = targets.view(-1)
 
@@ -66,7 +63,6 @@ class TverskyLoss(nn.Module):
         self.beta = beta
 
     def forward(self, inputs, targets, smooth=1):
-        inputs = torch.sigmoid(inputs)
         inputs = inputs.view(-1)
         targets = targets.view(-1)
 
@@ -92,7 +88,6 @@ class TverskyBCELoss(nn.Module):
         self.bce_ratio = bce_ratio
 
     def forward(self, inputs, targets, smooth=1):
-        inputs = torch.sigmoid(inputs)
         inputs = inputs.view(-1)
         targets = targets.view(-1)
 

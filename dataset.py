@@ -12,7 +12,19 @@ class RetinalBloodVesselsDataset(Dataset):
     def __init__(self, image_paths, mask_paths, transforms=None):
         self.image_paths = image_paths
         self.mask_paths = mask_paths
-        self.transforms = transforms
+        if(transforms is None):
+            self.transforms = A.Compose(
+                [
+                    A.Normalize(
+                        mean=[0.0, 0.0, 0.0],
+                        std=[1.0, 1.0, 1.0],
+                        max_pixel_value=255.0,
+                    ),
+                    ToTensorV2(),
+                ],
+            )
+        else:
+            self.transforms = transforms
 
     def __len__(self):
         return len(self.image_paths)
@@ -22,10 +34,9 @@ class RetinalBloodVesselsDataset(Dataset):
         mask = np.array(Image.open(
             self.mask_paths[index]).convert("L"), dtype=np.float32)
         mask[mask == 255.0] = 1.0
-        if self.transforms is not None:
-            augmentations = self.transforms(image=image, mask=mask)
-            image = augmentations["image"]
-            mask = augmentations["mask"]
+        augmentations = self.transforms(image=image, mask=mask)
+        image = augmentations["image"]
+        mask = augmentations["mask"]
         return image, mask
 
 
@@ -48,27 +59,28 @@ def get_train_dataloaders(limits=0):
                 std=[1.0, 1.0, 1.0],
                 max_pixel_value=255.0,
             ),
+            A.OneOf(
+                [
+                    A.CropAndPad(
+                        percent=-0.3, sample_independently=True, p=0.25),
+                    A.CropAndPad(
+                        percent=-0.4, sample_independently=True, p=0.25),
+                    A.CropAndPad(
+                        percent=-0.2, sample_independently=False, p=0.25),
+                    A.CropAndPad(
+                        percent=-0.1, sample_independently=False, p=0.25),
+                ],
+                p=0.35),
             ToTensorV2(),
         ],
     )
 
-    val_transforms = A.Compose(
-        [
-            A.Normalize(
-                mean=[0.0, 0.0, 0.0],
-                std=[1.0, 1.0, 1.0],
-                max_pixel_value=255.0,
-            ),
-            ToTensorV2(),
-        ],
-    )
-
-    train_loader = get_dataloader(X_train, y_train, train_transform, True)
-    val_loader = get_dataloader(X_val, y_val, val_transforms, False)
+    train_loader = get_dataloader(X_train, y_train, True,  train_transform)
+    val_loader = get_dataloader(X_val, y_val, False)
     return (train_loader, val_loader)
 
 
-def get_dataloader(image_paths, mask_paths, transforms, shuffle):
+def get_dataloader(image_paths, mask_paths, shuffle, transforms=None):
     dataset = RetinalBloodVesselsDataset(
         image_paths=image_paths,
         mask_paths=mask_paths,

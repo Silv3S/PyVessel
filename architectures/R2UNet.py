@@ -74,7 +74,9 @@ class R2UNet(nn.Module):
         self.Up2 = up_conv(features[1], features[0])
         self.Up_RRCNN2 = RRCNN_block(features[1], features[0], t)
 
-        self.Conv_1x1 = nn.Conv2d(features[0], channels_out, kernel_size=1)
+        self.Final = nn.Sequential(
+            nn.Conv2d(features[0], channels_out, kernel_size=1),
+            nn.Sigmoid())
 
     def forward(self, x):
         x1 = self.RRCNN1(x)
@@ -107,6 +109,6 @@ class R2UNet(nn.Module):
         d2 = torch.cat((x1, d2), dim=1)
         d2 = self.Up_RRCNN2(d2)
 
-        d1 = self.Conv_1x1(d2)
+        d1 = self.Final(d2)
 
         return d1
