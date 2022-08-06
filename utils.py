@@ -1,3 +1,4 @@
+from imutils import paths
 from glob import glob
 import os
 import torch
@@ -43,3 +44,9 @@ def load_model(checkpoint, model):
 
 def average(list, round_to):
     return round(sum(list) / len(list), round_to)
+
+
+def list_directory(directory):
+    image_paths = sorted(list(paths.list_images(directory + "src/")))
+    mask_paths = sorted(list(paths.list_images(directory + "mask/")))
+    return image_paths, mask_paths

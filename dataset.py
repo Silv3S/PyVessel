@@ -2,10 +2,10 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import numpy as np
 import config
-from imutils import paths
 from sklearn.model_selection import train_test_split
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from utils import list_directory
 
 
 class RetinalBloodVesselsDataset(Dataset):
@@ -41,8 +41,7 @@ class RetinalBloodVesselsDataset(Dataset):
 
 
 def get_train_dataloaders(limits=0):
-    image_paths = sorted(list(paths.list_images(config.PATCHES_PATH + "src/")))
-    mask_paths = sorted(list(paths.list_images(config.PATCHES_PATH + "mask/")))
+    image_paths, mask_paths = list_directory(config.PATCHES_PATH)
 
     if(limits != 0):
         image_paths = image_paths[:limits]
@@ -75,12 +74,13 @@ def get_train_dataloaders(limits=0):
         ],
     )
 
-    train_loader = get_dataloader(X_train, y_train, True,  train_transform)
+    train_loader = get_dataloader(
+        X_train, y_train, True, transforms=train_transform)
     val_loader = get_dataloader(X_val, y_val, False)
     return (train_loader, val_loader)
 
 
-def get_dataloader(image_paths, mask_paths, shuffle, transforms=None):
+def get_dataloader(image_paths, mask_paths, shuffle, batch_size=config.BATCH_SIZE, transforms=None):
     dataset = RetinalBloodVesselsDataset(
         image_paths=image_paths,
         mask_paths=mask_paths,
@@ -89,7 +89,7 @@ def get_dataloader(image_paths, mask_paths, shuffle, transforms=None):
 
     return DataLoader(
         dataset,
-        batch_size=config.BATCH_SIZE,
+        batch_size=batch_size,
         num_workers=config.NUM_WORKERS,
         pin_memory=config.PIN_MEMORY,
         shuffle=shuffle,

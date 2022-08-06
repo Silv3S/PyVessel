@@ -2,17 +2,15 @@ import uuid
 import numpy as np
 import torch
 import config
-from torch.utils.data import DataLoader
 from data_preparation import add_zero_padding
-from dataset import RetinalBloodVesselsDataset
+from dataset import get_dataloader
 from metrics import SegmentationMetrics
-from utils import load_model
+from utils import list_directory, load_model
 from visualize import save_graphical_confusion_matrix, plot_results_inline
-from imutils import paths
 from patchify import patchify, unpatchify
 
 
-def predict(model, data_loader):
+def evaluate_model(model, data_loader):
     segmentation_metrics = SegmentationMetrics()
     with torch.no_grad():
         for(_, (x, y)) in enumerate(data_loader):
@@ -52,17 +50,8 @@ if __name__ == "__main__":
     load_model(torch.load(config.BEST_MODEL_PATH), model)
     model.eval()
 
-    test_dataset = RetinalBloodVesselsDataset(
-        image_paths=sorted(
-            list(paths.list_images(config.TEST_DATASETS_PATH + "src/"))),
-        mask_paths=sorted(
-            list(paths.list_images(config.TEST_DATASETS_PATH + "mask/"))),
-    )
+    test_image_paths, test_mask_paths = list_directory(
+        config.TEST_DATASETS_PATH)
+    test_loader = get_dataloader(test_image_paths, test_mask_paths, False, 1)
 
-    test_loader = DataLoader(
-        test_dataset,
-        num_workers=config.NUM_WORKERS,
-        pin_memory=config.PIN_MEMORY,
-    )
-
-    predict(model, test_loader)
+    evaluate_model(model, test_loader)

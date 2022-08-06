@@ -1,9 +1,10 @@
 import time
 import torch
 import config
-from dataset import get_train_dataloaders
+from dataset import get_dataloader, get_train_dataloaders
+from test import evaluate_model
 from train import LossTracker, train_fn
-from utils import prepare_datasets, load_model
+from utils import list_directory, prepare_datasets, load_model
 import wandb
 
 
@@ -45,9 +46,14 @@ if __name__ == '__main__':
         loss_tracker(model, train_loss, val_loss)
         if(loss_tracker.early_stop):
             break
-        wandb.log({"train_loss": train_loss})
-        wandb.log({"val_loss": val_loss})
 
     print('That\'s all Folks!')
     print(f'Total training time: {(time.time() - start_time):.2f}s')
     loss_tracker.save_loss_plots()
+
+    test_image_paths, test_mask_paths = list_directory(
+        config.TEST_DATASETS_PATH)
+    test_loader = get_dataloader(test_image_paths, test_mask_paths, False, 1)
+
+    model.eval()
+    evaluate_model(model, test_loader)

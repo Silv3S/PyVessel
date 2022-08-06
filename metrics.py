@@ -1,5 +1,6 @@
 from utils import average
 from sklearn import metrics
+import wandb
 
 
 class SegmentationMetrics():
@@ -32,3 +33,10 @@ class SegmentationMetrics():
         print(f"Specificity: {average(self.specificity, 4)}")
         print(f"Dice coefficient / F-score: {average(self.Dice, 4)}")
         print(f"Jaccard index / IoU: {average(self.Jaccard, 4)}")
+
+        wandb.log({"Accuracy": average(self.accuracy, 4),
+                  "Precision": average(self.precision, 4),
+                   "Recall": average(self.recall, 4),
+                   "Specificity": average(self.specificity, 4),
+                   "Dice coefficient": average(self.Dice, 4),
+                   "Jaccard index": average(self.Jaccard, 4)})
