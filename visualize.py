@@ -11,8 +11,9 @@ from torchvision.utils import save_image
 def save_loss_history(stats):
     plt.figure()
     ax = plt.gca()
-    plt.plot(stats["train_loss"], label="train_loss")
-    plt.plot(stats["val_loss"], label="validation_loss")
+    x_count = len(stats["train_loss"])
+    plt.plot(range(1, x_count + 1), stats["train_loss"], label="train_loss")
+    plt.plot(range(1, x_count + 1), stats["val_loss"], label="validation_loss")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     ax.set_ylim(ymin=0)

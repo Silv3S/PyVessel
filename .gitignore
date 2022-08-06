@@ -3,8 +3,13 @@ Datasets/
 Datasets_Train/
 Datasets_Test/
 Patches/
+SmallDatasets/
+SmallDatasets_Train/
+SmallDatasets_Test/
+SmallPatches/
 Plots/
 Trained_models/
 TODO.txt
 __pycache__
 .vscode/
+wandb/
