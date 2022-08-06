@@ -4,7 +4,7 @@ import torch.nn.functional
 
 
 class DiceLoss(nn.Module):
-    def __init__(self):
+    def __init__(self, weight=None, size_average=True):
         super(DiceLoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
@@ -20,7 +20,7 @@ class DiceLoss(nn.Module):
 
 
 class DiceBCELoss(nn.Module):
-    def __init__(self):
+    def __init__(self, weight=None, size_average=True):
         super(DiceBCELoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
@@ -39,7 +39,7 @@ class DiceBCELoss(nn.Module):
 
 
 class IoULoss(nn.Module):
-    def __init__(self):
+    def __init__(self, weight=None, size_average=True):
         super(IoULoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
@@ -56,7 +56,7 @@ class IoULoss(nn.Module):
 
 
 class TverskyLoss(nn.Module):
-    def __init__(self, alpha, beta):
+    def __init__(self, alpha=0.5, beta=0.5, weight=None, size_average=True):
         """
         Tversky loss combined with Binary Cross Entropy. Parameters α and β
         control the magnitude of penalties for FPs and FNs, respectively.
@@ -80,7 +80,7 @@ class TverskyLoss(nn.Module):
 
 
 class TverskyBCELoss(nn.Module):
-    def __init__(self, alpha, beta, bce_ratio):
+    def __init__(self, alpha=0.5, beta=0.5, bce_ratio=0.5, weight=None, size_average=True):
         """
         Tversky loss combined with Binary Cross Entropy. Parameters α and β
         control the magnitude of penalties for FPs and FNs, respectively.
