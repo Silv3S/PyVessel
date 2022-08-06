@@ -8,7 +8,7 @@ import config
 from torchvision.utils import save_image
 
 
-def plot_loss_history(stats):
+def save_loss_history(stats):
     plt.figure()
     ax = plt.gca()
     plt.plot(stats["train_loss"], label="train_loss")

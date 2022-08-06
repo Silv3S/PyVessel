@@ -21,6 +21,8 @@ NUM_EPOCHS = 3
 BATCH_SIZE = 4      # 8 is max for full precision fp32 GTX 1060 6GB
 MODEL_ARCHITECTURE = UNet()
 LOSS_FUNC = loss.DiceBCELoss()
+EARLY_STOP_PATIENCE = 5
+EARLY_STOP_DELTA = 0.1
 
 # Other
 USE_VALIDATION_SET = True
