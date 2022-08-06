@@ -29,6 +29,12 @@ USE_VALIDATION_SET = True
 LOAD_PRETRAINED_MODEL = False
 SAVE_TEST_RESULTS = True
 
+# Visualization
+TP_RGB = (0, 0, 0)
+TN_RGB = (1, 1, 1)
+FP_RGB = (19, 160, 191)
+FN_RGB = (1, 0, 0)
+
 # Filepaths
 DATASETS_PATH = 'Datasets/'
 TRAIN_DATASETS_PATH = 'Datasets_Train/'

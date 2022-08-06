@@ -7,7 +7,7 @@ from data_preparation import add_zero_padding
 from dataset import RetinalBloodVesselsDataset
 from metrics import SegmentationMetrics
 from utils import load_model
-from visualize import plot_confusion_matrix, plot_results_inline
+from visualize import save_graphical_confusion_matrix, plot_results_inline
 from albumentations.pytorch import ToTensorV2
 import albumentations as A
 from imutils import paths
@@ -44,7 +44,7 @@ def predict(model, data_loader):
 
             plot_id = uuid.uuid4()
             plot_results_inline(img, mask, prediction, plot_id)
-            plot_confusion_matrix(mask, prediction, img, plot_id)
+            save_graphical_confusion_matrix(mask, prediction, img, plot_id)
             segmentation_metrics.evaluate_pair(mask, prediction)
         segmentation_metrics.summary()
 

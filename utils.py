@@ -1,11 +1,14 @@
 from glob import glob
-import numpy as np
-from skimage.io import imread, imsave
 import os
-from patchify import patchify
-from pathlib import Path
 import torch
 import config
+from data_preparation import extract_train_patches, split_train_test_images
+
+
+def prepare_datasets():
+    clear_image_directories()
+    split_train_test_images()
+    extract_train_patches()
 
 
 def clear_image_directories():
