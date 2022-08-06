@@ -86,7 +86,9 @@ class AttentionUNet(nn.Module):
         self.Att2 = Attention_block(features[0], 32)
         self.Up_conv2 = conv_block(features[1], features[0])
 
-        self.Conv_1x1 = nn.Conv2d(features[0], channels_out, kernel_size=1)
+        self.Final = nn.Sequential(
+            nn.Conv2d(features[0], channels_out, kernel_size=1),
+            nn.Sigmoid())
 
     def forward(self, x):
         e1 = self.Conv1(x)
@@ -119,5 +121,5 @@ class AttentionUNet(nn.Module):
         d2 = torch.cat((s1, d2), dim=1)
         d2 = self.Up_conv2(d2)
 
-        d1 = self.Conv_1x1(d2)
+        d1 = self.Final(d2)
         return d1

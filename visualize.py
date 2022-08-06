@@ -49,7 +49,7 @@ def visualize_training_results(loader, model):
         x = x.to(device=config.DEVICE)
 
         with torch.no_grad():
-            preds = torch.sigmoid(model(x))
+            preds = model(x)
             preds = (preds > 0.5).float()
         save_image(preds, f"{config.PLOTS_PATH}/pred_{idx}.png")
         save_image(y.unsqueeze(1), f"{config.PLOTS_PATH}{idx}.png")

@@ -42,7 +42,9 @@ class UNet(nn.Module):
             )
             self.decoder.append(DoubleConv(feature*2, feature))
 
-        self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
+        self.final_conv = nn.Sequential(
+            nn.Conv2d(features[0], out_channels, kernel_size=1),
+            nn.Sigmoid())
 
     def forward(self, x):
         skip_connections = []
