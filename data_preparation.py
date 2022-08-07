@@ -5,6 +5,13 @@ import config
 import random
 from patchify import patchify
 from skimage.io import imread, imsave
+from utils import clear_image_directories
+
+
+def prepare_datasets():
+    clear_image_directories()
+    split_train_test_images()
+    extract_train_patches()
 
 
 def split_train_test_images():

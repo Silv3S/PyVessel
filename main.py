@@ -1,24 +1,26 @@
 import time
 import torch
 import config
+from data_preparation import prepare_datasets
 from dataset import get_dataloader, get_train_dataloaders
 from test import evaluate_model
 from train import LossTracker, train_fn
-from utils import list_directory, prepare_datasets, load_model
+from utils import list_directory, load_model
 import wandb
 
 
 if __name__ == '__main__':
-    wandb.init(project="PyVessel")
-    wandb.config = {
-        "learning_rate": config.LR,
-        "epochs": config.NUM_EPOCHS,
-        "batch_size": config.BATCH_SIZE,
-        "patch_size": config.PATCH_SHAPE_IMG,
-        "test_set_ratio": config.TEST_SET_RATIO,
-        "val_set_ratio": config.VAL_SET_RATIO,
-        "random_seed": config.RANDOM_SEED,
-    }
+    if(config.SYNC_WANDB):
+        wandb.init(project="PyVessel")
+        wandb.config = {
+            "learning_rate": config.LR,
+            "epochs": config.NUM_EPOCHS,
+            "batch_size": config.BATCH_SIZE,
+            "patch_size": config.PATCH_SHAPE_IMG,
+            "test_set_ratio": config.TEST_SET_RATIO,
+            "val_set_ratio": config.VAL_SET_RATIO,
+            "random_seed": config.RANDOM_SEED,
+        }
 
     if(config.PREPARE_DATASETS):
         prepare_datasets()

@@ -3,13 +3,6 @@ from glob import glob
 import os
 import torch
 import config
-from data_preparation import extract_train_patches, split_train_test_images
-
-
-def prepare_datasets():
-    clear_image_directories()
-    split_train_test_images()
-    extract_train_patches()
 
 
 def clear_image_directories():

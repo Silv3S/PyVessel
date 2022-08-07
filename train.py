@@ -56,8 +56,10 @@ class LossTracker():
     def __call__(self, model, training_loss, validation_loss):
         self.train_stats['train_loss'].append(training_loss)
         self.train_stats['val_loss'].append(validation_loss)
-        wandb.log({"train_loss": training_loss,
-                   "val_loss": validation_loss})
+
+        if(config.SYNC_WANDB):
+            wandb.log({"train_loss": training_loss,
+                       "val_loss": validation_loss})
 
         if (validation_loss - self.least_val_loss) > self.min_delta:
             self.counter += 1
