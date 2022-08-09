@@ -5,13 +5,15 @@ from data_preparation import prepare_datasets
 from dataset import get_dataloader, get_train_dataloaders
 from test import evaluate_model
 from train import LossTracker, train_fn
-from utils import list_directory, load_model
+from utils import list_directory, load_model, parse_cli_args
 import wandb
 
 
 if __name__ == '__main__':
+    parse_cli_args()
+
     if(config.SYNC_WANDB):
-        wandb.init(project="PyVessel")
+        wandb.init(project=config.PROJECT_NAME)
         wandb.config = {
             "learning_rate": config.LR,
             "epochs": config.NUM_EPOCHS,

@@ -26,6 +26,8 @@ EARLY_STOP_PATIENCE = 5
 EARLY_STOP_DELTA = 0.1
 
 # Other
+PROJECT_NAME = "PyVessel"
+TRAIN_LIMITS = 0  # Run training on limited number of images
 USE_VALIDATION_SET = True
 LOAD_PRETRAINED_MODEL = False
 SAVE_TEST_RESULTS = True

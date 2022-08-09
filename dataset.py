@@ -40,12 +40,12 @@ class RetinalBloodVesselsDataset(Dataset):
         return image, mask
 
 
-def get_train_dataloaders(limits=0):
+def get_train_dataloaders():
     image_paths, mask_paths = list_directory(config.PATCHES_PATH)
 
-    if(limits != 0):
-        image_paths = image_paths[:limits]
-        mask_paths = mask_paths[:limits]
+    if(config.TRAIN_LIMITS != 0):
+        image_paths = image_paths[:config.TRAIN_LIMITS]
+        mask_paths = mask_paths[:config.TRAIN_LIMITS]
 
     (X_train, X_val, y_train, y_val) = train_test_split(image_paths, mask_paths,
                                                         test_size=config.VAL_SET_RATIO, random_state=config.RANDOM_SEED)

@@ -1,3 +1,4 @@
+import argparse
 from imutils import paths
 from glob import glob
 import os
@@ -43,3 +44,43 @@ def list_directory(directory):
     image_paths = sorted(list(paths.list_images(directory + "src/")))
     mask_paths = sorted(list(paths.list_images(directory + "mask/")))
     return image_paths, mask_paths
+
+
+def parse_cli_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch_size', dest='batch_size',
+                        type=int, default=config.BATCH_SIZE)
+    parser.add_argument('--epochs', dest='epochs',
+                        type=int, default=config.NUM_EPOCHS)
+    parser.add_argument('--learning_rate', dest='learning_rate',
+                        type=float, default=config.LR)
+    parser.add_argument('--patch_size', dest='patch_size',
+                        type=int, default=config.patch_size)
+    parser.add_argument('--patch_step_train',
+                        dest='patch_step_train', type=int, default=config.PATCH_STEP_TRAIN)
+    parser.add_argument('--random_seed', dest='random_seed',
+                        type=int, default=config.RANDOM_SEED)
+    parser.add_argument('--val_set_ratio', dest='val_set_ratio',
+                        type=float, default=config.VAL_SET_RATIO)
+    parser.add_argument('--test_set_ratio', dest='test_set_ratio',
+                        type=float, default=config.TEST_SET_RATIO)
+    parser.add_argument('--limits', dest='limits', type=int,
+                        default=config.TRAIN_LIMITS)
+    parser.add_argument('--project_name', dest='project_name',
+                        default=config.PROJECT_NAME)
+    args = parser.parse_args()
+
+    config.SYNC_WANDB = True
+    config.BATCH_SIZE = args.batch_size
+    config.NUM_EPOCHS = args.epochs
+    config.LR = args.learning_rate
+    config.RANDOM_SEED = args.random_seed
+    config.VAL_SET_RATIO = args.val_set_ratio
+    config.PROJECT_NAME = args.project_name
+    config.TRAIN_LIMITS = args.limits
+
+    if (config.patch_size != args.patch_size or config.PATCH_STEP_TRAIN != args.patch_step_train):
+        config.PREPARE_DATASETS = True
+        config.patch_size = args.patch_size
+        config.PATCH_STEP_TRAIN = args.patch_step_train
+        config.TEST_SET_RATIO = args.test_set_ratio
