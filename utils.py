@@ -1,3 +1,8 @@
+from architectures.AttentionUNet import AttentionUNet
+from architectures.LadderNet import LadderNet
+from architectures.R2UNet import R2UNet
+from architectures.SAUnet import SA_UNet
+from architectures.UNet import UNet
 import data_preparation
 import argparse
 from imutils import paths
@@ -70,6 +75,8 @@ def parse_cli_args():
                         default=config.TRAIN_LIMITS)
     parser.add_argument('--project_name', dest='project_name',
                         default=config.PROJECT_NAME)
+    parser.add_argument('--model_name', dest='model_name', type=str,
+                        default="")
     parser.add_argument('--prepare_new_dataset',
                         dest='prepare_new_dataset', type=bool, default=False)
     args = parser.parse_args()
@@ -85,6 +92,17 @@ def parse_cli_args():
     config.TEST_SET_RATIO = args.test_set_ratio
     config.TRAIN_LIMITS = args.limits
     config.PROJECT_NAME = args.project_name
+
+    if(args.model_name == "base_unet"):
+        config.MODEL_ARCHITECTURE = UNet()
+    elif(args.model_name == "r2_unet"):
+        config.MODEL_ARCHITECTURE = R2UNet()
+    elif(args.model_name == "attention_unet"):
+        config.MODEL_ARCHITECTURE = AttentionUNet()
+    elif(args.model_name == "ladder_net"):
+        config.MODEL_ARCHITECTURE = LadderNet()
+    elif(args.model_name == "sa_unet"):
+        config.MODEL_ARCHITECTURE = SA_UNet()
 
     if(args.prepare_new_dataset):
         data_preparation.prepare_datasets()

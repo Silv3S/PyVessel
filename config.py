@@ -25,7 +25,7 @@ PROJECT_NAME = "PyVessel"
 TRAIN_LIMITS = 0  # Run training on limited number of images
 USE_VALIDATION_SET = True
 LOAD_PRETRAINED_MODEL = False
-SAVE_TEST_RESULTS = True
+SAVE_TEST_RESULTS = False
 SYNC_WANDB = True
 
 # Visualization

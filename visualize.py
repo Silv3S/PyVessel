@@ -40,9 +40,8 @@ def plot_results_inline(org_img, org_mask, seg_result, img_id=uuid.uuid4()):
     fig.tight_layout()
     for axis in ax.flat:
         axis.set_axis_off()
-    if config.SAVE_TEST_RESULTS:
-        filename = f'{config.PLOTS_PATH}_{img_id}.png'
-        plt.savefig(filename)
+    filename = f'{config.PLOTS_PATH}_{img_id}.png'
+    plt.savefig(filename)
 
     plt.close(fig)
 

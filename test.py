@@ -38,9 +38,10 @@ def evaluate_model(model, data_loader):
                 preds_patches, np.squeeze(padded_mask).shape)
             prediction = reconstructed_image[0:mask.shape[0], 0:mask.shape[1]]
 
-            plot_id = uuid.uuid4()
-            plot_results_inline(img, mask, prediction, plot_id)
-            save_graphical_confusion_matrix(mask, prediction, img, plot_id)
+            if config.SAVE_TEST_RESULTS:
+                plot_id = uuid.uuid4()
+                plot_results_inline(img, mask, prediction, plot_id)
+                save_graphical_confusion_matrix(mask, prediction, img, plot_id)
             segmentation_metrics.evaluate_pair(mask, prediction)
         segmentation_metrics.summary()
 

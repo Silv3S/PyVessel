@@ -11,6 +11,8 @@ import wandb
 
 if __name__ == '__main__':
     parse_cli_args()
+    if(config.PREPARE_DATASETS):
+        prepare_datasets()
 
     if(config.SYNC_WANDB):
         wandb.init(project=config.PROJECT_NAME)
@@ -23,9 +25,6 @@ if __name__ == '__main__':
             "val_set_ratio": config.VAL_SET_RATIO,
             "random_seed": config.RANDOM_SEED,
         }
-
-    if(config.PREPARE_DATASETS):
-        prepare_datasets()
 
     model = config.MODEL_ARCHITECTURE.to(config.DEVICE)
     if(config.LOAD_PRETRAINED_MODEL):
