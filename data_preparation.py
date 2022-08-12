@@ -40,9 +40,9 @@ def extract_train_patches():
         mask = imread(config.TRAIN_DATASETS_PATH + "mask/" + path)
         image, mask = add_zero_padding(image, mask)
         image_patches = patchify(
-            image, config.PATCH_SHAPE_IMG, step=config.PATCH_STEP_TRAIN)
+            image, (config.PATCH_SIZE, config.PATCH_SIZE, 3), step=config.PATCH_STEP_TRAIN)
         mask_patches = patchify(
-            mask, config.PATCH_SHAPE_MASK, step=config.PATCH_STEP_TRAIN)
+            mask, (config.PATCH_SIZE, config.PATCH_SIZE),  step=config.PATCH_STEP_TRAIN)
         save_extracted_patches(
             image_patches, mask_patches, path[:-4])
     patches_count = len(os.listdir(config.PATCHES_PATH + "src/"))
@@ -83,10 +83,8 @@ def add_zero_padding(image, mask, format_NHWC=False):
     """
     w = 2 if format_NHWC else 0
     h = 3 if format_NHWC else 1
-    h_pad = config.PATCH_SHAPE_MASK[0] - \
-        (image.shape[w] % config.PATCH_SHAPE_MASK[0])
-    v_pad = config.PATCH_SHAPE_MASK[1] - \
-        (image.shape[h] % config.PATCH_SHAPE_MASK[1])
+    h_pad = config.PATCH_SIZE - (image.shape[w] % config.PATCH_SIZE)
+    v_pad = config.PATCH_SIZE - (image.shape[h] % config.PATCH_SIZE)
 
     if(h_pad != 0 or v_pad != 0):
         if(format_NHWC):

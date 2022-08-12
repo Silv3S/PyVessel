@@ -88,22 +88,22 @@ def save_graphical_confusion_matrix(y_true, y_pred, img, img_id=uuid.uuid4()):
 def save_patched_image(image, mask, padding):
     image, mask = add_zero_padding(image, mask)
     image_patches = patchify(
-        image, config.PATCH_SHAPE_IMG, step=config.PATCH_STEP)
+        image, (config.PATCH_SIZE, config.PATCH_SIZE, 3), step=config.PATCH_SIZE)
     mask_patches = patchify(
-        mask, config.PATCH_SHAPE_MASK, step=config.PATCH_STEP)
+        mask, (config.PATCH_SIZE, config.PATCH_SIZE), step=config.PATCH_SIZE)
     x_patch_count = image_patches.shape[0]
     y_patch_count = image_patches.shape[1]
-    x_dim = x_patch_count * config.patch_size + (x_patch_count - 1) * padding
-    y_dim = y_patch_count * config.patch_size + (y_patch_count - 1) * padding
+    x_dim = x_patch_count * config.PATCH_SIZE + (x_patch_count - 1) * padding
+    y_dim = y_patch_count * config.PATCH_SIZE + (y_patch_count - 1) * padding
     patched_padded_image = np.ones((x_dim, y_dim, 3)) * 255.0
     patched_padded_mask = np.ones((x_dim, y_dim)) * 255.0
 
-    x_start = [(config.patch_size + padding) * x
+    x_start = [(config.PATCH_SIZE + padding) * x
                for x in range(0, x_patch_count+1)]
-    x_end = [x + config.patch_size for x in x_start]
-    y_start = [(config.patch_size + padding) * y
+    x_end = [x + config.PATCH_SIZE for x in x_start]
+    y_start = [(config.PATCH_SIZE + padding) * y
                for y in range(0, y_patch_count+1)]
-    y_end = [y + config.patch_size for y in y_start]
+    y_end = [y + config.PATCH_SIZE for y in y_start]
 
     for i in range(x_patch_count):
         for j in range(y_patch_count):

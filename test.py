@@ -20,11 +20,11 @@ def evaluate_model(model, data_loader):
             image, padded_mask = add_zero_padding(
                 x, y, format_NHWC=True)
             image_patches = patchify(
-                image, config.PATCH_SHAPE_IMG_NHWC, step=config.PATCH_STEP)
+                image, (1, 3, config.PATCH_SIZE, config.PATCH_SIZE), step=config.PATCH_SIZE)
             # Patchify returns extra "1" dims, which can be squeezed
             image_patches = image_patches[0, 0, ...]
             preds_patches = np.zeros((
-                image_patches.shape[0], image_patches.shape[1], config.PATCH_SHAPE_MASK[0], config.PATCH_SHAPE_MASK[1]))
+                image_patches.shape[0], image_patches.shape[1], config.PATCH_SIZE, config.PATCH_SIZE))
 
             for i in range(image_patches.shape[0]):
                 for j in range(image_patches.shape[1]):

@@ -18,7 +18,7 @@ if __name__ == '__main__':
             "learning_rate": config.LR,
             "epochs": config.NUM_EPOCHS,
             "batch_size": config.BATCH_SIZE,
-            "patch_size": config.PATCH_SHAPE_IMG,
+            "patch_size": config.PATCH_SIZE,
             "test_set_ratio": config.TEST_SET_RATIO,
             "val_set_ratio": config.VAL_SET_RATIO,
             "random_seed": config.RANDOM_SEED,

@@ -1,9 +1,11 @@
+import data_preparation
 import argparse
 from imutils import paths
 from glob import glob
 import os
 import torch
 import config
+import sys
 
 
 def clear_image_directories():
@@ -55,7 +57,7 @@ def parse_cli_args():
     parser.add_argument('--learning_rate', dest='learning_rate',
                         type=float, default=config.LR)
     parser.add_argument('--patch_size', dest='patch_size',
-                        type=int, default=config.patch_size)
+                        type=int, default=config.PATCH_SIZE)
     parser.add_argument('--patch_step_train',
                         dest='patch_step_train', type=int, default=config.PATCH_STEP_TRAIN)
     parser.add_argument('--random_seed', dest='random_seed',
@@ -68,19 +70,22 @@ def parse_cli_args():
                         default=config.TRAIN_LIMITS)
     parser.add_argument('--project_name', dest='project_name',
                         default=config.PROJECT_NAME)
+    parser.add_argument('--prepare_new_dataset',
+                        dest='prepare_new_dataset', type=bool, default=False)
     args = parser.parse_args()
 
     config.SYNC_WANDB = True
     config.BATCH_SIZE = args.batch_size
     config.NUM_EPOCHS = args.epochs
     config.LR = args.learning_rate
+    config.PATCH_SIZE = args.patch_size
+    config.PATCH_STEP_TRAIN = args.patch_step_train
     config.RANDOM_SEED = args.random_seed
     config.VAL_SET_RATIO = args.val_set_ratio
-    config.PROJECT_NAME = args.project_name
+    config.TEST_SET_RATIO = args.test_set_ratio
     config.TRAIN_LIMITS = args.limits
+    config.PROJECT_NAME = args.project_name
 
-    if (config.patch_size != args.patch_size or config.PATCH_STEP_TRAIN != args.patch_step_train):
-        config.PREPARE_DATASETS = True
-        config.patch_size = args.patch_size
-        config.PATCH_STEP_TRAIN = args.patch_step_train
-        config.TEST_SET_RATIO = args.test_set_ratio
+    if(args.prepare_new_dataset):
+        data_preparation.prepare_datasets()
+        sys.exit("New dataset is loaded!")
