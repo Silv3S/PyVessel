@@ -95,14 +95,19 @@ def parse_cli_args():
 
     if(args.model_name == "base_unet"):
         config.MODEL_ARCHITECTURE = UNet()
+        config.BEST_MODEL_PATH = './Trained_models/UNet.pth'
     elif(args.model_name == "r2_unet"):
         config.MODEL_ARCHITECTURE = R2UNet()
+        config.BEST_MODEL_PATH = './Trained_models/R2UNet.pth'
     elif(args.model_name == "attention_unet"):
         config.MODEL_ARCHITECTURE = AttentionUNet()
+        config.BEST_MODEL_PATH = './Trained_models/AtNet.pth'
     elif(args.model_name == "ladder_net"):
         config.MODEL_ARCHITECTURE = LadderNet()
+        config.BEST_MODEL_PATH = './Trained_models/LadderNet.pth'
     elif(args.model_name == "sa_unet"):
         config.MODEL_ARCHITECTURE = SA_UNet()
+        config.BEST_MODEL_PATH = './Trained_models/SAUNet.pth'
 
     if(args.prepare_new_dataset):
         data_preparation.prepare_datasets()
