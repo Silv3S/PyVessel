@@ -88,19 +88,18 @@ class UpsampleConvolve(nn.Module):
         return x
 
 
-class Attention(nn.Module):
+class SpatialAttention(nn.Module):
     def __init__(self):
-        super(Attention, self).__init__()
-        self.conv = nn.Conv2d(2, 1, kernel_size=7, stride=1, padding=3)
+        super(SpatialAttention, self).__init__()
+        self.conv = nn.Conv2d(2, 1, kernel_size=7, padding=3)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        x1 = torch.mean(x, dim=1, keepdim=True)
-        x2, _ = torch.max(x, 1, keepdim=True)
-        x3 = torch.cat((x1, x2), dim=1)
-        x4 = torch.sigmoid(self.conv(x3))
-        x = x4 * x
-        assert len(x.shape) == 4, f"好像乘不了"
-        return x
+        avg_out = torch.mean(x, dim=1, keepdim=True)
+        max_out, _ = torch.max(x, 1, keepdim=True)
+        att = torch.cat((avg_out, max_out), dim=1)
+        att = self.sigmoid(self.conv(att))
+        return x * att
 
 
 class DARE_UNet(nn.Module):
@@ -114,7 +113,7 @@ class DARE_UNet(nn.Module):
         self.conv4 = DoubleConv(128, 256)
 
         self.conv5 = SingleConv(256, 512)
-        # self.attn = Attention()
+        self.sp_att = SpatialAttention()
         self.conv6 = SingleConv(512, 512)
 
         self.up1 = UpsampleConvolve(512, 256)
@@ -147,10 +146,11 @@ class DARE_UNet(nn.Module):
 
         # Bottleneck
         bot_1 = self.conv5(enc_4_pool)
-        bot_2 = self.conv6(bot_1)
+        bot_2 = self.sp_att(bot_1)
+        bot_3 = self.conv6(bot_2)
 
         # Decoder
-        dec_1_ups = self.up1(bot_2)
+        dec_1_ups = self.up1(bot_3)
         dec_1_cat = torch.cat((enc_4, dec_1_ups), dim=1)
         dec_1 = self.uconv1(dec_1_cat)
 
@@ -167,3 +167,10 @@ class DARE_UNet(nn.Module):
         dec_4 = self.uconv4(dec_4_cat)
 
         return self.Final(dec_4)
+
+
+if __name__ == "__main__":
+    x = torch.randn((4, 3, 256, 256))
+    model = DARE_UNet()
+    preds = model(x)
+    assert preds.shape == (4, 1, 256, 256)
