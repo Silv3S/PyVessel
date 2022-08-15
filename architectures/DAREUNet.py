@@ -127,82 +127,74 @@ class SpatialAttention(nn.Module):
         return x * att
 
 
+class UpsampleAttConv(nn.Module):
+    def __init__(self, g_channels, x_channels):
+        super().__init__()
+        self.upsample_convolve = UpsampleConvolve(g_channels, x_channels)
+        self.att_gate = AttentionGate(g_channels, x_channels)
+        self.double_conv = DoubleConv(g_channels, x_channels)
+
+    def forward(self, x, g):
+        upsampled = self.upsample_convolve(x)
+        x = self.att_gate(x, g)
+        concated = torch.cat((x, upsampled), dim=1)
+        return self.double_conv(concated)
+
+
 class DARE_UNet(nn.Module):
     def __init__(self):
         super(DARE_UNet, self).__init__()
         self.pooling = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv1 = DoubleConv(3, 32)
-        self.conv2 = DoubleConv(32, 64)
-        self.conv3 = DoubleConv(64, 128)
-        self.conv4 = DoubleConv(128, 256)
+        self.double_conv_1 = DoubleConv(3, 32)
+        self.double_conv_2 = DoubleConv(32, 64)
+        self.double_conv_3 = DoubleConv(64, 128)
+        self.double_conv_4 = DoubleConv(128, 256)
 
-        self.conv5 = SingleConv(256, 512)
+        self.conv_to_bottlneck = SingleConv(256, 512)
         self.sp_att = SpatialAttention()
-        self.conv6 = SingleConv(512, 512)
+        self.bottleneck = SingleConv(512, 512)
 
-        self.up1 = UpsampleConvolve(512, 256)
-        self.Att1 = AttentionGate(512, 256)
-        self.uconv1 = DoubleConv(512, 256)
+        self.up_att_conv_1 = UpsampleAttConv(512, 256)
+        self.up_att_conv_2 = UpsampleAttConv(256, 128)
+        self.up_att_conv_3 = UpsampleAttConv(128, 64)
+        self.up_att_conv_4 = UpsampleAttConv(64, 32)
 
-        self.up2 = UpsampleConvolve(256, 128)
-        self.Att2 = AttentionGate(256, 128)
-        self.uconv2 = DoubleConv(256, 128)
-
-        self.up3 = UpsampleConvolve(128, 64)
-        self.Att3 = AttentionGate(128, 64)
-        self.uconv3 = DoubleConv(128, 64)
-
-        self.up4 = UpsampleConvolve(64, 32)
-        self.Att4 = AttentionGate(64, 32)
-        self.uconv4 = DoubleConv(64, 32)
-
-        self.Final = nn.Sequential(
+        self.final_pred = nn.Sequential(
             nn.Conv2d(32, 1, kernel_size=1),
             nn.Sigmoid()
         )
 
     def forward(self, x):
+
+        skip_connections = []
+
         # Encoder
-        enc_1 = self.conv1(x)
-        enc_1_pool = self.pooling(enc_1)
-
-        enc_2 = self.conv2(enc_1_pool)
-        enc_2_pool = self.pooling(enc_2)
-
-        enc_3 = self.conv3(enc_2_pool)
-        enc_3_pool = self.pooling(enc_3)
-
-        enc_4 = self.conv4(enc_3_pool)
-        enc_4_pool = self.pooling(enc_4)
+        x = self.double_conv_1(x)
+        skip_connections.append(x)
+        x = self.pooling(x)
+        x = self.double_conv_2(x)
+        skip_connections.append(x)
+        x = self.pooling(x)
+        x = self.double_conv_3(x)
+        skip_connections.append(x)
+        x = self.pooling(x)
+        x = self.double_conv_4(x)
+        skip_connections.append(x)
+        x = self.pooling(x)
 
         # Bottleneck
-        bot_1 = self.conv5(enc_4_pool)
-        bot_2 = self.sp_att(bot_1)
-        bot_3 = self.conv6(bot_2)
+        x = self.conv_to_bottlneck(x)
+        x = self.sp_att(x)
+        x = self.bottleneck(x)
 
         # Decoder
-        dec_1_ups = self.up1(bot_3)
-        dec_1_att = self.Att1(bot_3, enc_4)
-        dec_1_cat = torch.cat((dec_1_att, dec_1_ups), dim=1)
-        dec_1 = self.uconv1(dec_1_cat)
+        x = self.up_att_conv_1(x, skip_connections[3])
+        x = self.up_att_conv_2(x, skip_connections[2])
+        x = self.up_att_conv_3(x, skip_connections[1])
+        x = self.up_att_conv_4(x, skip_connections[0])
 
-        dec_2_ups = self.up2(dec_1)
-        dec_2_att = self.Att2(dec_1, enc_3)
-        dec_2_cat = torch.cat((dec_2_att, dec_2_ups), dim=1)
-        dec_2 = self.uconv2(dec_2_cat)
-
-        dec_3_ups = self.up3(dec_2)
-        dec_3_att = self.Att3(dec_2, enc_2)
-        dec_3_cat = torch.cat((dec_3_att, dec_3_ups), dim=1)
-        dec_3 = self.uconv3(dec_3_cat)
-
-        dec_4_ups = self.up4(dec_3)
-        dec_4_att = self.Att4(dec_3, enc_1)
-        dec_4_cat = torch.cat((dec_4_att, dec_4_ups), dim=1)
-        dec_4 = self.uconv4(dec_4_cat)
-
-        return self.Final(dec_4)
+        return self.final_pred(x)
 
 
 if __name__ == "__main__":
