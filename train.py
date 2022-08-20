@@ -24,7 +24,6 @@ def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
         scaler.step(optimizer)
         scaler.update()
         train_loss += loss.cpu().detach().numpy()
-        train_loop.set_postfix(train_loss=loss.item())
 
     # Validation, turn off for faster training
     if config.USE_VALIDATION_SET:
@@ -36,7 +35,6 @@ def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
                 predictions = model(x)
                 loss = loss_fn(predictions, y)
                 val_loss += loss.cpu().detach().numpy()
-                val_loop.set_postfix(val_loss=loss.item())
 
     avg_train_loss = train_loss / len(train_loader)
     avg_val_loss = val_loss / len(val_loader)

@@ -20,10 +20,10 @@ c_lr=(0.001)
 
                 for val_set_ratio in "${c_val_set_ratio[@]}"; do
                     for lr in "${c_lr[@]}"; do
-                            echo patch_size:"$patch_size" patch_step_train:"$patch_step_train" model_name:"$model_name"\
+                            echo patch_size:"$patch_size" patch_step_train:"$patch_step_train" \
                                 test_set_ratio:"$test_set_ratio" lr:"$lr" val_set_ratio:"$val_set_ratio" 
                         
-                            python main.py --learning_rate=$lr --patch_size=$patch_size --patch_step_train=$patch_size --model_name=$model_name \
+                            python main.py --learning_rate=$lr --patch_size=$patch_size --patch_step_train=$patch_size \
                                         --val_set_ratio=$val_set_ratio --test_set_ratio=$test_set_ratio --project_name=$project_name
                     done
                 done
