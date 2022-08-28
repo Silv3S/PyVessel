@@ -23,7 +23,7 @@ def save_loss_history(stats):
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend(loc="upper right")
     plt.style.use("ggplot")
-    plt.savefig(config.LOSS_PLOT_PATH)
+    plt.savefig(config.PLOTS_PATH + '/train_val_loss')
 
 
 def plot_results_inline(org_img, org_mask, seg_result, img_id=uuid.uuid4()):
