@@ -40,8 +40,12 @@ class RetinalBloodVesselsDataset(Dataset):
         return image, mask
 
 
-def get_train_dataloaders():
+def get_train_dataloaders(dataset_name=None):
     image_paths, mask_paths = list_directory(config.PATCHES_PATH)
+
+    if(dataset_name is not None):
+        image_paths = [imp for imp in image_paths if (dataset_name in imp)]
+        mask_paths = [mp for mp in mask_paths if (dataset_name in mp)]
 
     if(config.TRAIN_LIMITS != 0):
         image_paths = image_paths[:config.TRAIN_LIMITS]

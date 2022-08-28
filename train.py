@@ -38,6 +38,8 @@ def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
 
     avg_train_loss = train_loss / len(train_loader)
     avg_val_loss = val_loss / len(val_loader)
+    print(
+        f"Train loss: {round(avg_train_loss,4)}\nVal loss: {round(avg_val_loss,4)}")
 
     return avg_train_loss, avg_val_loss
 

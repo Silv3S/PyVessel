@@ -34,10 +34,10 @@ class SingleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(SingleConv, self).__init__()
         self.residual = nn.Conv2d(
-            in_channels, out_channels, kernel_size=1, bias=False)
+            in_channels, out_channels, kernel_size=1)
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels,
-                      kernel_size=3, padding=1, bias=False),
+                      kernel_size=3, padding=1),
             DropBlock(5, 0.85),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
@@ -53,15 +53,15 @@ class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(DoubleConv, self).__init__()
         self.residual = nn.Conv2d(
-            in_channels, out_channels, kernel_size=1, bias=False)
+            in_channels, out_channels, kernel_size=1)
         self.double_conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels,
-                      kernel_size=3, padding=1, bias=False),
+                      kernel_size=3, padding=1),
             DropBlock(5, 0.85),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels,
-                      kernel_size=3, padding=1, bias=False),
+                      kernel_size=3, padding=1),
             DropBlock(5, 0.85),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
@@ -116,7 +116,7 @@ class AttentionGate(nn.Module):
 class SpatialAttention(nn.Module):
     def __init__(self):
         super(SpatialAttention, self).__init__()
-        self.conv = nn.Conv2d(2, 1, kernel_size=7, padding=3)
+        self.conv = nn.Conv2d(2, 1, kernel_size=3, padding=1)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
@@ -145,23 +145,23 @@ class DARE_UNet(nn.Module):
     def __init__(self):
         super(DARE_UNet, self).__init__()
         self.pooling = nn.MaxPool2d(kernel_size=2, stride=2)
+        features = [16, 32, 64, 128]
+        self.encoder_1 = DoubleConv(3, features[0])
+        self.encoder_2 = DoubleConv(features[0], features[1])
+        self.encoder_3 = DoubleConv(features[1], features[2])
 
-        self.double_conv_1 = DoubleConv(3, 32)
-        self.double_conv_2 = DoubleConv(32, 64)
-        self.double_conv_3 = DoubleConv(64, 128)
-        self.double_conv_4 = DoubleConv(128, 256)
+        self.bottleneck = nn.Sequential(
+            SingleConv(features[2], features[3]),
+            SpatialAttention(),
+            SingleConv(features[3], features[3])
+        )
 
-        self.conv_to_bottlneck = SingleConv(256, 512)
-        self.sp_att = SpatialAttention()
-        self.bottleneck = SingleConv(512, 512)
-
-        self.up_att_conv_1 = UpsampleAttConv(512, 256)
-        self.up_att_conv_2 = UpsampleAttConv(256, 128)
-        self.up_att_conv_3 = UpsampleAttConv(128, 64)
-        self.up_att_conv_4 = UpsampleAttConv(64, 32)
+        self.decoder_1 = UpsampleAttConv(features[3], features[2])
+        self.decoder_2 = UpsampleAttConv(features[2], features[1])
+        self.decoder_3 = UpsampleAttConv(features[1], features[0])
 
         self.final_pred = nn.Sequential(
-            nn.Conv2d(32, 1, kernel_size=1),
+            nn.Conv2d(features[0], 1, kernel_size=1),
             nn.Sigmoid()
         )
 
@@ -170,29 +170,23 @@ class DARE_UNet(nn.Module):
         skip_connections = []
 
         # Encoder
-        x = self.double_conv_1(x)
+        x = self.encoder_1(x)
         skip_connections.append(x)
         x = self.pooling(x)
-        x = self.double_conv_2(x)
+        x = self.encoder_2(x)
         skip_connections.append(x)
         x = self.pooling(x)
-        x = self.double_conv_3(x)
-        skip_connections.append(x)
-        x = self.pooling(x)
-        x = self.double_conv_4(x)
+        x = self.encoder_3(x)
         skip_connections.append(x)
         x = self.pooling(x)
 
         # Bottleneck
-        x = self.conv_to_bottlneck(x)
-        x = self.sp_att(x)
         x = self.bottleneck(x)
 
         # Decoder
-        x = self.up_att_conv_1(x, skip_connections[3])
-        x = self.up_att_conv_2(x, skip_connections[2])
-        x = self.up_att_conv_3(x, skip_connections[1])
-        x = self.up_att_conv_4(x, skip_connections[0])
+        x = self.decoder_1(x, skip_connections[2])
+        x = self.decoder_2(x, skip_connections[1])
+        x = self.decoder_3(x, skip_connections[0])
 
         return self.final_pred(x)
 

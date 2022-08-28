@@ -53,7 +53,7 @@ def save_extracted_patches(image_patches, mask_patches, image_name):
     idx = 0
     for i in range(image_patches.shape[0]):
         for j in range(image_patches.shape[1]):
-            if(is_patch_useless(mask_patches[i, j, ...])):
+            if(is_patch_useless(image_patches[i, j, ...])):
                 continue
 
             image_patch = image_patches[i, j, ...]
@@ -68,13 +68,11 @@ def save_extracted_patches(image_patches, mask_patches, image_name):
             idx = idx + 1
 
 
-def is_patch_useless(mask_patch):
+def is_patch_useless(image_patch):
     """
-    Patch is considered useless if the blood vessel pixels are less than 1% of the patch
+    Patch is considered useless, if maximum intensity of all channels is 20
     """
-    pixel_count = np.prod(mask_patch.shape)
-    blood_pixel_count = np.count_nonzero(mask_patch == 255)
-    return blood_pixel_count/pixel_count < 0.01
+    return np.amax(image_patch) < 20
 
 
 def add_zero_padding(image, mask, format_NHWC=False):
