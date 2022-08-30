@@ -25,16 +25,14 @@ def train_fn(train_loader, val_loader, model, optimizer, loss_fn, scaler):
         scaler.update()
         train_loss += loss.cpu().detach().numpy()
 
-    # Validation, turn off for faster training
-    if config.USE_VALIDATION_SET:
-        with torch.no_grad():
-            model.eval()
-            for _, (x, y) in enumerate(val_loop):
-                x = x.to(device=config.DEVICE)
-                y = y.float().unsqueeze(1).to(device=config.DEVICE)
-                predictions = model(x)
-                loss = loss_fn(predictions, y)
-                val_loss += loss.cpu().detach().numpy()
+    with torch.no_grad():
+        model.eval()
+        for _, (x, y) in enumerate(val_loop):
+            x = x.to(device=config.DEVICE)
+            y = y.float().unsqueeze(1).to(device=config.DEVICE)
+            predictions = model(x)
+            loss = loss_fn(predictions, y)
+            val_loss += loss.cpu().detach().numpy()
 
     avg_train_loss = train_loss / len(train_loader)
     avg_val_loss = val_loss / len(val_loader)
