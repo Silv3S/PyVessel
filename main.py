@@ -1,7 +1,6 @@
 import time
 import torch
 import config
-from data_preparation import prepare_datasets
 from dataset import get_dataloader, get_train_dataloaders
 from test import evaluate_model
 from train import LossTracker, train_fn
@@ -11,8 +10,6 @@ import wandb
 
 if __name__ == '__main__':
     parse_cli_args()
-    if(config.PREPARE_DATASETS):
-        prepare_datasets()
 
     if(config.SYNC_WANDB):
         wandb.init(project=config.PROJECT_NAME)

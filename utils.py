@@ -86,7 +86,3 @@ def parse_cli_args():
     config.TEST_SET_RATIO = args.test_set_ratio
     config.TRAIN_LIMITS = args.limits
     config.PROJECT_NAME = args.project_name
-
-    if(args.prepare_new_dataset):
-        data_preparation.prepare_datasets()
-        sys.exit("New dataset is loaded!")

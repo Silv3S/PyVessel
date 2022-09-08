@@ -2,11 +2,9 @@ Torch/
 Datasets/
 Datasets_Train/
 Datasets_Test/
+Datasets_Test_One/
 Patches/
-SmallDatasets/
-SmallDatasets_Train/
-SmallDatasets_Test/
-SmallPatches/
+Patches_One/
 Plots/
 Trained_models/
 __pycache__

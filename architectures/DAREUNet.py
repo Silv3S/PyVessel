@@ -193,4 +193,4 @@ class DARE_UNet(nn.Module):
 
 if __name__ == "__main__":
     model = DARE_UNet()
-    summary(model, (3, 256, 256), device='cpu')
+    summary(model, (3, 128, 128), device='cpu')

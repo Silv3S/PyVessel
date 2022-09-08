@@ -28,17 +28,17 @@ class SegmentationMetrics():
 
     def summary(self):
         print(f"Segmentation metrics")
-        print(f"Accuracy: {average(self.accuracy, 4)}")
-        print(f"Precision: {average(self.precision, 4)}")
-        print(f"Recall / Sensitivity: {average(self.recall, 4)}")
-        print(f"Specificity: {average(self.specificity, 4)}")
-        print(f"Dice coefficient / F-score: {average(self.Dice, 4)}")
-        print(f"Jaccard index / IoU: {average(self.Jaccard, 4)}")
+        print(f"Accuracy: {average(self.accuracy, 3)}")
+        print(f"Precision: {average(self.precision, 3)}")
+        print(f"Recall / Sensitivity: {average(self.recall, 3)}")
+        print(f"Specificity: {average(self.specificity, 3)}")
+        print(f"Dice coefficient / F-score: {average(self.Dice, 3)}")
+        print(f"Jaccard index / IoU: {average(self.Jaccard, 3)}")
 
         if(config.SYNC_WANDB):
-            wandb.log({"Accuracy": average(self.accuracy, 4),
-                       "Precision": average(self.precision, 4),
-                       "Recall": average(self.recall, 4),
-                       "Specificity": average(self.specificity, 4),
-                       "Dice coefficient": average(self.Dice, 4),
-                       "Jaccard index": average(self.Jaccard, 4)})
+            wandb.log({"Accuracy": average(self.accuracy, 3),
+                       "Precision": average(self.precision, 3),
+                       "Recall": average(self.recall, 3),
+                       "Specificity": average(self.specificity, 3),
+                       "Dice coefficient": average(self.Dice, 3),
+                       "Jaccard index": average(self.Jaccard, 3)})
