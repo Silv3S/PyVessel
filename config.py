@@ -25,8 +25,8 @@ SAVE_TEST_RESULTS = True
 SYNC_WANDB = True
 
 # Visualization
-TP_RGB = (0, 0, 0)
-TN_RGB = (1, 1, 1)
+TN_RGB = (0, 0, 0)
+TP_RGB = (1, 1, 1)
 FP_RGB = (19, 160, 191)
 FN_RGB = (1, 0, 0)
 

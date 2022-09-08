@@ -42,3 +42,7 @@ def parse_cli_args():
 
     config.SYNC_WANDB = True
     config.dataset_name = args.dataset_name
+    config.TEST_DATASETS_PATH = 'Datasets_Test_One/' + args.dataset_name + '/'
+    config.PATCHES_PATH = './Patches_One/' + args.dataset_name + '/'
+    config.PLOTS_PATH = './Plots_One/'
+    config.BEST_MODEL_PATH = './Trained_models/' + args.dataset_name + '.pth'
