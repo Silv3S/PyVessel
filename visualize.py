@@ -23,7 +23,7 @@ def save_loss_history(stats):
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend(loc="upper right")
     plt.style.use("ggplot")
-    plt.savefig(config.PLOTS_PATH + '/train_val_loss')
+    plt.savefig(config.PLOTS_PATH + '/train_val_loss_' + config.dataset_name)
 
 
 def plot_results_inline(org_img, org_mask, seg_result, img_id=uuid.uuid4()):
@@ -40,7 +40,7 @@ def plot_results_inline(org_img, org_mask, seg_result, img_id=uuid.uuid4()):
     fig.tight_layout()
     for axis in ax.flat:
         axis.set_axis_off()
-    filename = f'{config.PLOTS_PATH}_{img_id}.png'
+    filename = f'{config.PLOTS_PATH}_{img_id}_{config.dataset_name}.png'
     plt.savefig(filename)
 
     plt.close(fig)
@@ -54,8 +54,10 @@ def visualize_training_results(loader, model):
         with torch.no_grad():
             preds = model(x)
             preds = (preds > 0.5).float()
-        save_image(preds, f"{config.PLOTS_PATH}/pred_{idx}.png")
-        save_image(y.unsqueeze(1), f"{config.PLOTS_PATH}{idx}.png")
+        save_image(
+            preds, f"{config.PLOTS_PATH}/pred_{idx}_{config.dataset_name}.png")
+        save_image(y.unsqueeze(
+            1), f"{config.PLOTS_PATH}{idx}_{config.dataset_name}.png")
 
     model.train()
 

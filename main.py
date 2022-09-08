@@ -23,6 +23,8 @@ if __name__ == '__main__':
             "random_seed": config.RANDOM_SEED,
         }
 
+    print(config.dataset_name)
+
     model = config.MODEL_ARCHITECTURE.to(config.DEVICE)
     load_model(torch.load(config.PRETRAINED_MODEL_PATH), model)
 
