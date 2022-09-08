@@ -47,10 +47,6 @@ def get_train_dataloaders(dataset_name=None):
         image_paths = [imp for imp in image_paths if (dataset_name in imp)]
         mask_paths = [mp for mp in mask_paths if (dataset_name in mp)]
 
-    if(config.TRAIN_LIMITS != 0):
-        image_paths = image_paths[:config.TRAIN_LIMITS]
-        mask_paths = mask_paths[:config.TRAIN_LIMITS]
-
     (X_train, X_val, y_train, y_val) = train_test_split(image_paths, mask_paths,
                                                         test_size=config.VAL_SET_RATIO, random_state=config.RANDOM_SEED)
     train_transform = A.Compose(

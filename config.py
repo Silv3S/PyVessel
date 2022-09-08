@@ -2,27 +2,25 @@ import torch
 from architectures.DAREUNet import DARE_UNet
 import loss
 
+dataset_name = 'drive'
+
 # Data preparation
-PREPARE_DATASETS = True
 PATCH_SIZE = 128
-PATCH_STEP_TRAIN = 64  # Used for data augmentation
 
 # Hyperparameters
 RANDOM_SEED = 1337
-TEST_SET_RATIO = 0.15
 VAL_SET_RATIO = 0.15
 LR = 0.001
 NUM_EPOCHS = 300
 BATCH_SIZE = 16
 MODEL_ARCHITECTURE = DARE_UNet()
-LOSS_FUNC = loss.TverskyLoss(0.4, 0.6)
-EARLY_STOP_PATIENCE = 13
+LOSS_FUNC = loss.DiceLoss()
+EARLY_STOP_PATIENCE = 6
 EARLY_STOP_DELTA = 0
 
 # Other
 PROJECT_NAME = "Thesis DARE U-Net"
-TRAIN_LIMITS = 0  # Run training on limited number of images
-LOAD_PRETRAINED_MODEL = True
+PRETRAINED_MODEL_PATH = './Trained_models/PRETRAINED_DARE_UNet.pth'
 SAVE_TEST_RESULTS = True
 SYNC_WANDB = True
 
@@ -33,12 +31,10 @@ FP_RGB = (19, 160, 191)
 FN_RGB = (1, 0, 0)
 
 # Filepaths
-DATASETS_PATH = 'Datasets/'
-TRAIN_DATASETS_PATH = 'Datasets_Train/'
-TEST_DATASETS_PATH = 'Datasets_Test/'
-PATCHES_PATH = './Patches/'
-PLOTS_PATH = './Plots/'
-BEST_MODEL_PATH = './Trained_models/PRETRAINED_DARE_UNet.pth'
+TEST_DATASETS_PATH = 'Datasets_Test_One/' + dataset_name + '/'
+PATCHES_PATH = './Patches_One/' + dataset_name + '/'
+PLOTS_PATH = './Plots_One/'
+BEST_MODEL_PATH = './Trained_models/' + dataset_name + '.pth'
 
 # Hardware
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

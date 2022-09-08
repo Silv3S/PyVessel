@@ -14,18 +14,17 @@ if __name__ == '__main__':
     if(config.SYNC_WANDB):
         wandb.init(project=config.PROJECT_NAME)
         wandb.config = {
+            "dataset": config.dataset_name,
             "learning_rate": config.LR,
             "epochs": config.NUM_EPOCHS,
             "batch_size": config.BATCH_SIZE,
             "patch_size": config.PATCH_SIZE,
-            "test_set_ratio": config.TEST_SET_RATIO,
             "val_set_ratio": config.VAL_SET_RATIO,
             "random_seed": config.RANDOM_SEED,
         }
 
     model = config.MODEL_ARCHITECTURE.to(config.DEVICE)
-    if(config.LOAD_PRETRAINED_MODEL):
-        load_model(torch.load(config.BEST_MODEL_PATH), model)
+    load_model(torch.load(config.PRETRAINED_MODEL_PATH), model)
 
     loss_func = config.LOSS_FUNC
     opt = torch.optim.Adam(model.parameters(), config.LR)

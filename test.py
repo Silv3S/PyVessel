@@ -13,7 +13,8 @@ from patchify import patchify, unpatchify
 def evaluate_model(model, data_loader):
     segmentation_metrics = SegmentationMetrics()
     with torch.no_grad():
-        for(_, (x, y)) in enumerate(data_loader):
+        for(i, (x, y)) in enumerate(data_loader):
+            print(i)
             img = x.squeeze().numpy()
             img = np.moveaxis(img, 0, -1)
             mask = y.squeeze().numpy()
@@ -54,5 +55,8 @@ if __name__ == "__main__":
     test_image_paths, test_mask_paths = list_directory(
         config.TEST_DATASETS_PATH)
     test_loader = get_dataloader(test_image_paths, test_mask_paths, False, 1)
+
+    print(config.TEST_DATASETS_PATH)
+    print(len(test_image_paths))
 
     evaluate_model(model, test_loader)

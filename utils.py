@@ -1,21 +1,7 @@
-from architectures.DAREUNet import DARE_UNet
-import data_preparation
 import argparse
 from imutils import paths
-from glob import glob
-import os
 import torch
 import config
-import sys
-
-
-def clear_image_directories():
-    directories = [config.TRAIN_DATASETS_PATH + "src/*", config.TRAIN_DATASETS_PATH + "mask/*",
-                   config.TEST_DATASETS_PATH + "src/*", config.TEST_DATASETS_PATH + "mask/*",
-                   config.PATCHES_PATH + "src/*", config.PATCHES_PATH + "mask/*"]
-    for dir in directories:
-        for file in glob(dir):
-            os.remove(file)
 
 
 def save_to_file(filepath, content):
@@ -59,16 +45,10 @@ def parse_cli_args():
                         type=float, default=config.LR)
     parser.add_argument('--patch_size', dest='patch_size',
                         type=int, default=config.PATCH_SIZE)
-    parser.add_argument('--patch_step_train',
-                        dest='patch_step_train', type=int, default=config.PATCH_STEP_TRAIN)
     parser.add_argument('--random_seed', dest='random_seed',
                         type=int, default=config.RANDOM_SEED)
     parser.add_argument('--val_set_ratio', dest='val_set_ratio',
                         type=float, default=config.VAL_SET_RATIO)
-    parser.add_argument('--test_set_ratio', dest='test_set_ratio',
-                        type=float, default=config.TEST_SET_RATIO)
-    parser.add_argument('--limits', dest='limits', type=int,
-                        default=config.TRAIN_LIMITS)
     parser.add_argument('--project_name', dest='project_name',
                         default=config.PROJECT_NAME)
     parser.add_argument('--prepare_new_dataset',
@@ -80,9 +60,6 @@ def parse_cli_args():
     config.NUM_EPOCHS = args.epochs
     config.LR = args.learning_rate
     config.PATCH_SIZE = args.patch_size
-    config.PATCH_STEP_TRAIN = args.patch_step_train
     config.RANDOM_SEED = args.random_seed
     config.VAL_SET_RATIO = args.val_set_ratio
-    config.TEST_SET_RATIO = args.test_set_ratio
-    config.TRAIN_LIMITS = args.limits
     config.PROJECT_NAME = args.project_name
