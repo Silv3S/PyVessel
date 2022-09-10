@@ -1,3 +1,4 @@
+import random
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import numpy as np
@@ -53,27 +54,20 @@ def get_train_dataloaders(dataset_name=None):
 
     (X_train, X_val, y_train, y_val) = train_test_split(image_paths, mask_paths,
                                                         test_size=config.VAL_SET_RATIO, random_state=config.RANDOM_SEED)
+    crop_pad_margins = tuple(random.randint(0, 30) / 100 for _ in range(4))
     train_transform = A.Compose(
         [
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.3),
             A.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0],
                 max_pixel_value=255.0,
             ),
-            A.OneOf(
-                [
-                    A.CropAndPad(
-                        percent=-0.3, sample_independently=True, p=0.25),
-                    A.CropAndPad(
-                        percent=-0.4, sample_independently=True, p=0.25),
-                    A.CropAndPad(
-                        percent=-0.2, sample_independently=False, p=0.25),
-                    A.CropAndPad(
-                        percent=-0.1, sample_independently=False, p=0.25),
-                ],
-                p=0.35),
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.3),
+            A.RandomRotate90(p=1),
+            A.Transpose(p=0.35),
+            A.CropAndPad(
+                percent=crop_pad_margins, sample_independently=True, p=0.75),
             ToTensorV2(),
         ],
     )
