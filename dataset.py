@@ -24,8 +24,10 @@ class RetinalBloodVesselsDataset(Dataset):
                     ToTensorV2(),
                 ],
             )
+            self.cropp = False
         else:
             self.transforms = transforms
+            self.cropp = True
 
     def __len__(self):
         return len(self.image_paths)
@@ -38,6 +40,21 @@ class RetinalBloodVesselsDataset(Dataset):
         augmentations = self.transforms(image=image, mask=mask)
         image = augmentations["image"]
         mask = augmentations["mask"]
+
+        # This is workaround to get RANDOM paddings for each image patch.
+        # If crop_pad_margins is set earlier, then value is fixed
+        if(self.cropp):
+            crop_pad_margins = tuple(
+                random.randint(0, 45) / 100 for _ in range(4))
+
+            random_crop_transform = A.Compose(
+                [A.CropAndPad(percent=crop_pad_margins, sample_independently=True, p=0.85),
+                 ToTensorV2(),
+                 ])
+            random_crop = random_crop_transform(image=image, mask=mask)
+            image = random_crop["image"]
+            mask = random_crop["mask"]
+
         return image, mask
 
 
@@ -54,7 +71,6 @@ def get_train_dataloaders(dataset_name=None):
 
     (X_train, X_val, y_train, y_val) = train_test_split(image_paths, mask_paths,
                                                         test_size=config.VAL_SET_RATIO, random_state=config.RANDOM_SEED)
-    crop_pad_margins = tuple(random.randint(0, 30) / 100 for _ in range(4))
     train_transform = A.Compose(
         [
             A.Normalize(
@@ -66,9 +82,6 @@ def get_train_dataloaders(dataset_name=None):
             A.VerticalFlip(p=0.3),
             A.RandomRotate90(p=1),
             A.Transpose(p=0.35),
-            A.CropAndPad(
-                percent=crop_pad_margins, sample_independently=True, p=0.75),
-            ToTensorV2(),
         ],
     )
 
