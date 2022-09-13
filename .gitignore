@@ -8,7 +8,6 @@ SmallDatasets_Train/
 SmallDatasets_Test/
 SmallPatches/
 Plots/
-Trained_models/
 __pycache__
 .vscode/
 wandb/

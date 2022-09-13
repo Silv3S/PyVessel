@@ -1,3 +1,4 @@
+import argparse
 import uuid
 import numpy as np
 import torch
@@ -47,6 +48,11 @@ def evaluate_model(model, data_loader):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset', dest='dataset',  default="")
+    args = parser.parse_args()
+    config.TEST_DATASETS_PATH = 'Datasets_Test_One/' + args.dataset + '/'
+
     model = config.MODEL_ARCHITECTURE.to(config.DEVICE)
     load_model(torch.load(config.BEST_MODEL_PATH), model)
     model.eval()
