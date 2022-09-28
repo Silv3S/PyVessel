@@ -1,7 +1,8 @@
 # Retinal Blood Vessel Segmentation Algorithm
-The purpose of this project is to train autoencoder model that can classify pixels from retinal images into two categories -- blood vessel and background. Model architecture is based on U-Net, which is improved by implementing residual connections and attention modules.
+The purpose of this project is to train autoencoder model that can classify pixels from retinal images into two categories -- blood vessel and background.
 
 ## Double-Attention, Residual, Efficient U-Net
+Model architecture is based on U-Net, which is improved by implementing residual connections and attention modules.
 ![DARE U-NET](architectures/DAREUNET.png "DARE U-Net")
 
 
@@ -29,8 +30,11 @@ Model performance was evaluated on 16 different databases which vary in terms of
 
 
 ## Application
-Models can be trained or used via specialized methods, or by running `main.py`. Configurations related to image preprocessing, filepaths other hyperparameters are configurated via `config.py`.
+Models can be trained or used via specialized methods, or by running `main.py`. Configurations related to image preprocessing, filepaths other hyperparameters can be configured via `config.py`.
 
 To run application, create folders with datasets in `Datasets/` directory. Image division and augmentation will be done automatically and saved in folder declared in `config.py`. 
 
 Program can be run with IDE or via CLI. Supported arguments are listed in `utils.py`.
+
+## Pre-trained models
+Repository contains pre-trained models which can be used for inference or further fine-tuning. To run segmentation task you have to adjust `config.py` to match pre-trained model filepath and set output images directory. Then run `test.py`. Console will display segmentation metrics and segmentation results with annotated missclafficiations will be saved in specified directory.
